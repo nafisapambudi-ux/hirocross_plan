@@ -8,16 +8,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
     <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-    const SUPABASE_URL = "https://cswapndilbogsxllxtks.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_1oCGldF2ca7orsshuHBQjw_TtW8AoUP";
-
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  </script>
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://cswapndilbogsxllxtks.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_1oCGldF2ca7orsshuHBQjw_TtW8AoUP";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
 
   <style>
@@ -1120,6 +1116,7 @@ async function loadAnnualPlans() {
   </script>
 </body>
 </html>
+
 
 
 

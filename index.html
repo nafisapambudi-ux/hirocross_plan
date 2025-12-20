@@ -1071,9 +1071,38 @@
     window.print();
   }, 300);
 }
+async function saveAnnualPlan() {
+  const planName = document.getElementById("programName")?.value || "Unnamed Plan";
+
+  const payload = {
+    created_from: "web",
+    timestamp: new Date().toISOString(),
+    // nanti kita isi annual plan detail di sini
+  };
+
+  const { data, error } = await supabase
+    .from("hirocross_plans")
+    .insert([
+      {
+        plan_name: planName,
+        payload: payload
+      }
+    ]);
+
+  if (error) {
+    console.error("GAGAL SIMPAN:", error);
+    alert("Gagal menyimpan ke database");
+  } else {
+    console.log("BERHASIL:", data);
+    alert("Program berhasil disimpan ke database");
+  }
+}
+</script>
+
   </script>
 </body>
 </html>
+
 
 
 

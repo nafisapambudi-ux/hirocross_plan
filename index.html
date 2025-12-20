@@ -1076,7 +1076,7 @@ async function saveAnnualPlan() {
     // nanti kita isi annual plan detail di sini
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("hirocross_plans")
     .insert([
       {
@@ -1184,6 +1184,7 @@ async function loadAnnualPlans() {
   </script>
 </body>
 </html>
+
 
 
 

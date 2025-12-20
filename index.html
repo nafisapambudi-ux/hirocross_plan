@@ -292,7 +292,8 @@
 </header>
 
  <div class="side-dock no-print">
-  <button class="dock-btn" onclick="exportData()" title="Simpan Data">💾</button>
+  <button class="dock-btn" onclick="saveAnnualPlan()" title="Simpan ke Database">💾</button>
+  <button class="dock-btn" onclick="loadAnnualPlans()" title="Buka dari Database">☁️</button>
   <button class="dock-btn" onclick="document.getElementById('fInput').click()" title="Buka File">📂</button>
   <button class="dock-btn" onclick="printPDF()" title="Print / PDF">🖨️</button>
   <input type="file" id="fInput" style="display:none" onchange="importData(event)" />
@@ -1097,11 +1098,32 @@ async function saveAnnualPlan() {
     alert("Program berhasil disimpan ke database");
   }
 }
+async function loadAnnualPlans() {
+  const { data, error } = await supabase
+    .from("hirocross_plans")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    alert("Gagal mengambil data");
+    console.error(error);
+    return;
+  }
+
+  console.log("DATA DARI DATABASE:", data);
+
+  // contoh: pakai data terbaru
+  if (data.length > 0) {
+    document.getElementById("planName").value = data[0].plan_name;
+    alert("Data berhasil dimuat dari database");
+  }
+}
 </script>
 
   </script>
 </body>
 </html>
+
 
 
 

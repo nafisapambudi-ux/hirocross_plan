@@ -1068,7 +1068,7 @@
   }, 300);
 }
 async function saveAnnualPlan() {
-  const planName = document.getElementById("programName")?.value || "Unnamed Plan";
+  const planName = document.getElementById("planName")?.value || "Unnamed Plan";
 
   const payload = {
     created_from: "web",
@@ -1093,29 +1093,98 @@ async function saveAnnualPlan() {
     alert("Program berhasil disimpan ke database");
   }
 }
-async function loadAnnualPlans() {
-  const { data, error } = await supabase
+async function saveAnnualPlan() {
+  const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
+
+  const payload = {
+    config: {
+      name: planName,
+      start: document.getElementById('start')?.value || "",
+      match: document.getElementById('match')?.value || "",
+      tk: document.getElementById('tK')?.value || "",
+      tv: document.getElementById('tV')?.value || "",
+      td: document.getElementById('tD')?.value || "",
+      tTek: document.getElementById('tTek')?.value || "",
+      tTak: document.getElementById('tTak')?.value || ""
+    },
+    meso: mesocycles || [],
+    plan: planData || [],
+    sessions: weeklySessions || {},
+    meta: {
+      created_from: "web",
+      timestamp: new Date().toISOString()
+    }
+  };
+
+  const { data, error } = await supabaseClient
     .from("hirocross_plans")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .insert([{ plan_name: planName, payload }])
+    .select();
 
   if (error) {
-    alert("Gagal mengambil data");
+    console.error("GAGAL SIMPAN:", error);
+    alert("Gagal menyimpan: " + (error.message || "unknown"));
+    return;
+  }
+
+  console.log("BERHASIL SIMPAN:", data);
+  alert("Program berhasil disimpan ke database");
+}
+
+async function loadAnnualPlans() {
+  const { data, error } = await supabaseClient
+    .from("hirocross_plans")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) {
+    alert("Gagal mengambil data: " + (error.message || "unknown"));
     console.error(error);
     return;
   }
 
-  console.log("DATA DARI DATABASE:", data);
-
-  // contoh: pakai data terbaru
-  if (data.length > 0) {
-    document.getElementById("planName").value = data[0].plan_name;
-    alert("Data berhasil dimuat dari database");
+  if (!data || data.length === 0) {
+    alert("Belum ada data di database");
+    return;
   }
+
+  const row = data[0];
+  const p = row.payload || {};
+
+  // restore config
+  if (p.config) {
+    document.getElementById('planName').value = p.config.name || row.plan_name || "";
+    document.getElementById('start').value = p.config.start || "";
+    document.getElementById('match').value = p.config.match || "";
+    document.getElementById('tK').value = p.config.tk || "";
+    document.getElementById('tV').value = p.config.tv || "";
+    document.getElementById('tD').value = p.config.td || "";
+    if (p.config.tTek) document.getElementById('tTek').value = p.config.tTek;
+    if (p.config.tTak) document.getElementById('tTak').value = p.config.tTak;
+  } else {
+    document.getElementById('planName').value = row.plan_name || "";
+  }
+
+  mesocycles = p.meso || [];
+  planData = p.plan || [];
+  weeklySessions = p.sessions || {};
+  totalWkLocked = planData.length || 0;
+
+  // render ulang
+  renderMesoEditor();
+  renderTable();
+  populateMonthSelector();
+  updateVisuals();
+  renderMonthlyCalendar();
+
+  alert("Data berhasil dimuat dari database");
+  showSection('step2');
 }
   </script>
 </body>
 </html>
+
 
 
 

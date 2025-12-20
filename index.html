@@ -493,7 +493,10 @@
       const btnId = 'btn' + id.slice(-1);
       if (document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
     }
-
+    if (id === 'step2') {
+  const name = (document.getElementById('planName')?.value || '').trim();
+  document.getElementById('displayTitle').innerText = name ? name : 'ANNUAL PLAN';
+}
     function initPlan() {
       const sVal = document.getElementById('start').value;
       const mVal = document.getElementById('match').value;
@@ -1061,4 +1064,5 @@
   </script>
 </body>
 </html>
+
 

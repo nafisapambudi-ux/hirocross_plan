@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HiroCross_Plan</title>
 
+  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
-    <!-- Supabase JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://cswapndilbogsxllxtks.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_1oCGldF2ca7orsshuHBQjw_TtW8AoUP";
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://cswapndilbogsxllxtks.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_1oCGldF2ca7orsshuHBQjw_TtW8AoUP";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
 
   <style>
@@ -121,7 +124,6 @@
       font-weight: 800; text-align: center;
     }
 
-    /* --- STYLE BARU UNTUK MONITORING & KOMPONEN --- */
     .component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
     .comp-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .comp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -131,7 +133,6 @@
     .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease-in-out; }
     .comp-detail { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 600; color: #94a3b8; }
 
-    /* Style untuk Panel Akumulasi Real */
     .realization-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
     .real-card {
       background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;
@@ -144,347 +145,382 @@
     .real-value { display: block; font-size: 1.1rem; font-weight: 800; color: #1e293b; }
     .real-value small { font-size: 0.7rem; font-weight: 600; color: #94a3b8; }
 
-    /* =========================
-       FIX MODAL MAIN SET (ANTI KE POTONG)
-       ========================= */
-    #sessionModal table {
-      width: 100% !important;
-      border-collapse: collapse;
-      table-layout: fixed;
-      min-width: 0 !important; /* override default table min-width */
-    }
+    /* Modal fix */
+    #sessionModal table { width: 100% !important; border-collapse: collapse; table-layout: fixed; min-width: 0 !important; }
     #sessionModal td { padding: 6px 6px; vertical-align: middle; }
-
-    /* Lebar kolom di modal: Nama, Kategori, Set, Rep, Beban/Jarak, Hapus */
     #sessionModal #exerciseBody td:nth-child(1) { width: 42%; text-align: left; }
     #sessionModal #exerciseBody td:nth-child(2) { width: 18%; }
     #sessionModal #exerciseBody td:nth-child(3) { width: 12%; }
     #sessionModal #exerciseBody td:nth-child(4) { width: 12%; }
     #sessionModal #exerciseBody td:nth-child(5) { width: 14%; }
     #sessionModal #exerciseBody td:nth-child(6) { width: 2%;  }
-
-    #sessionModal #exerciseBody input,
-    #sessionModal #exerciseBody select {
-      width: 100% !important;
-      min-width: 0;
-      box-sizing: border-box;
-      padding: 10px 10px;
-      font-size: 0.8rem;
+    #sessionModal #exerciseBody input, #sessionModal #exerciseBody select {
+      width: 100% !important; min-width: 0; box-sizing: border-box; padding: 10px 10px; font-size: 0.8rem;
     }
-    #sessionModal #exerciseBody input::placeholder { font-size: 0.75rem; }
-    #sessionModal #exerciseBody select.ecat { font-size: 0.75rem !important; padding: 10px 8px !important; }
 
-    /* Opsional: rapikan spinner number (Chrome/Edge) */
-    #sessionModal #exerciseBody input[type=number]::-webkit-outer-spin-button,
-    #sessionModal #exerciseBody input[type=number]::-webkit-inner-spin-button { margin: 0; }
-
-    @media (max-width: 720px) {
-      .modal-content { max-width: 96vw; padding: 18px; }
-      #sessionModal #exerciseBody td:nth-child(1) { width: 40%; }
-      #sessionModal #exerciseBody td:nth-child(2) { width: 22%; }
-      #sessionModal #exerciseBody td:nth-child(3),
-      #sessionModal #exerciseBody td:nth-child(4),
-      #sessionModal #exerciseBody td:nth-child(5) { width: 12%; }
-      #sessionModal #exerciseBody input, #sessionModal #exerciseBody select { padding: 9px 8px; font-size: 0.78rem; }
+    /* Print */
+    @page { size: A4; margin: 12mm; }
+    @media print {
+      header, nav, .side-dock, .no-print, .modal { display: none !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      html, body { background: #fff !important; height: auto !important; }
+      .card, .week-row, .real-card, .comp-card { break-inside: avoid !important; page-break-inside: avoid !important; }
+      table { min-width: 0 !important; }
+      th, td { font-size: 10px !important; }
+      canvas { max-width: 100% !important; height: auto !important; }
+      .card, .real-card, .comp-card, .day-box { box-shadow: none !important; }
+      .week-row { grid-template-columns: 1fr !important; }
     }
-    /* =========================
-   PRINT / PDF MODE
-   ========================= */
-@page {
-  size: A4;
-  margin: 12mm;
-}
 
-@media print {
-  header,
-  nav,
-  .side-dock,
-  .no-print,
-  .modal {
-    display: none !important;
-  }
+    /* Brand */
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .brand-logo{ width:42px; height:42px; object-fit:contain; }
+    .brand-title{ color:#ffffff; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin:0; }
 
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  html, body {
-    background: #fff !important;
-    height: auto !important;
-  }
-
-  .card,
-  .week-row,
-  .real-card,
-  .comp-card,
-  .avoid-break {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-  }
-
-  table {
-    min-width: 0 !important;
-  }
-
-  th, td {
-    font-size: 10px !important;
-  }
-
-  canvas {
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  .card,
-  .real-card,
-  .comp-card,
-  .day-box {
-    box-shadow: none !important;
-  }
-
-  .week-row {
-    grid-template-columns: 1fr !important;
-  }
-}
-/* =========================
-   BRAND HIROCROSS (LOGO + TEKS)
-   ========================= */
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.brand-logo{
-  width:42px;
-  height:42px;
-  object-fit:contain;
-}
-
-.brand-title{
-  color:#ffffff;   /* MERAH */
-  font-weight:800;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  margin:0;
-}
+    /* Login UI */
+    #loginSection{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#0f172a;
+      padding:20px;
+    }
+    .login-card{
+      background:#fff;
+      width:100%;
+      max-width:380px;
+      padding:26px;
+      border-radius:16px;
+      box-shadow:0 20px 50px rgba(0,0,0,.35);
+    }
+    .login-card h2{ text-align:center; margin-bottom:6px; }
+    .login-card p{ text-align:center; font-size:.85rem; color:#64748b; margin-bottom:18px; }
+    .login-card input{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #cbd5e1;
+      margin-bottom:12px;
+      background:#fff;
+    }
+    .login-card button{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:var(--accent);
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .login-msg{ margin-top:12px; font-size:.8rem; font-weight:700; color:#ef4444; text-align:center; min-height:18px; }
+    .topbar-user{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#cbd5e1;
+      font-size:.8rem;
+      font-weight:700;
+    }
+    .topbar-user button{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.2);
+      color:#fff;
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:.75rem;
+    }
   </style>
 </head>
+
 <body>
-  <header>
-  <div class="brand">
-    <img src="./Hirocross-logo.png" alt="HIROCROSS Logo" class="brand-logo">
-    <h1 class="brand-title">HIRO CROSS</h1>
-  </div>
 
-  <nav>
-    <button id="btn1" class="active" onclick="showSection('step1')">SETUP</button>
-    <button id="btn2" onclick="showSection('step2')">ANNUAL PLAN</button>
-    <button id="btn3" onclick="showSection('step3')">BULANAN</button>
-    <button id="btn4" onclick="initMonitoring()">MONITORING</button>
-  </nav>
-</header>
-
- <div class="side-dock no-print">
-  <button class="dock-btn" onclick="saveAnnualPlan()" title="Simpan ke Database">💾</button>
-  <button class="dock-btn" onclick="loadAnnualPlans()" title="Buka dari Database">📂</button>
-  <button class="dock-btn" onclick="printPDF()" title="Print / PDF">🖨️</button>
-  <input type="file" id="fInput" style="display:none" onchange="importData(event)" />
-</div>
-
-  <section id="step1" class="content-section active">
-    <div class="card">
-      <h2 style="margin-bottom:20px">Parameter Master Program</h2>
-      <div class="grid">
-        <div style="grid-column: span 2;"><label>Nama Program</label><input type="text" id="planName" value="Annual Plan 2025"></div>
-        <div><label>Mulai Tanggal</label><input type="date" id="start"></div>
-        <div><label>Target Tanding</label><input type="date" id="match"></div>
-        <div><label>Kekuatan (kg)</label><input type="number" id="tK" value="100"></div>
-        <div><label>Kecepatan (m)</label><input type="number" id="tV" value="1000"></div>
-        <div><label>Daya Tahan (km)</label><input type="number" id="tD" value="10"></div>
-        <div><label>Teknik (rep)</label><input type="number" id="tTek" value="500"></div>
-        <div><label>Taktik (rep)</label><input type="number" id="tTak" value="200"></div>
-      </div>
-      <button onclick="initPlan()"
-        style="width:100%; margin-top:20px; padding:15px; background:var(--primary); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:800">
-        GENERATE PROGRAM
-      </button>
+  <!-- =========================
+       LOGIN SECTION (MUNCUL PERTAMA)
+       ========================= -->
+  <section id="loginSection">
+    <div class="login-card">
+      <h2>HIROCROSS PLAN</h2>
+      <p>Login untuk akses Setup & Annual Plan</p>
+      <input id="loginEmail" type="email" placeholder="Email" autocomplete="username" />
+      <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
+      <button onclick="doLogin()">LOGIN</button>
+      <div id="loginMsg" class="login-msg"></div>
     </div>
   </section>
 
-  <section id="step2" class="content-section">
-    <h2 id="displayTitle" style="text-align:center; text-transform:uppercase; margin-bottom:20px"></h2>
+  <!-- =========================
+       APP SECTION (SEMBUNYI SAMPAI LOGIN)
+       ========================= -->
+  <section id="appSection" style="display:none;">
 
-    <div class="card">
-      <label>Editor Struktur Mesocycle</label>
-      <div id="mesoEditorGrid" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
-      <div id="lockInfo" style="margin-top:15px; font-size:0.75rem; font-weight:800; border-top:1px solid #eee; padding-top:10px"></div>
-    </div>
-
-    <div class="card">
-      <div class="chart-layout">
-        <div class="chart-legend-side">
-          <div class="legend-item-side" style="color: var(--accent);">VOLUME LOAD</div>
-          <div class="legend-item-side" style="color: var(--red);">INTENSITAS</div>
-        </div>
-        <div class="chart-main-area">
-          <canvas id="mainChart"></canvas>
-          <div id="mesoStrip" style="display:flex; height:25px; margin-top:5px; border-radius:4px; overflow:hidden;"></div>
-        </div>
+    <header>
+      <div class="brand">
+        <!-- Pastikan file logo ada di repo yang sama dan namanya SAMA PERSIS -->
+        <img src="./Hirocross-logo.png" alt="HIROCROSS Logo" class="brand-logo">
+        <h1 class="brand-title">HIRO CROSS</h1>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:50px">Wk</th>
-              <th style="width:120px">Meso</th>
-              <th style="width:100px">Phase</th>
-              <th style="width:80px">Vol%</th>
-              <th style="width:80px">Int%</th>
-              <th>Kekuatan</th><th>Kecepatan</th><th>D.Tahan</th><th>Teknik</th><th>Taktik</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+      <nav>
+        <button id="btn1" class="active" onclick="showSection('step1')">SETUP</button>
+        <button id="btn2" onclick="showSection('step2')">ANNUAL PLAN</button>
+        <button id="btn3" onclick="showSection('step3')">BULANAN</button>
+        <button id="btn4" onclick="initMonitoring()">MONITORING</button>
+      </nav>
+
+      <div class="topbar-user no-print">
+        <span id="userEmailLabel">-</span>
+        <button onclick="doLogout()">LOGOUT</button>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <section id="step3" class="content-section">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center">
-      <h2>Kalender Kerja Bulanan</h2>
-      <select id="monthViewSelector" style="width:200px" onchange="renderMonthlyCalendar()"></select>
-    </div>
-    <div id="monthGrid"></div>
-  </section>
-
-  <section id="step4" class="content-section">
-    <h2 style="margin-bottom:20px">Dashboard Analisis & Efektivitas</h2>
-
-    <div class="stat-grid">
-      <div class="stat-card" style="background: var(--primary);"><span class="stat-label">Total Minggu</span><span id="statWk" class="stat-val">0</span></div>
-      <div class="stat-card" style="background: var(--accent);"><span class="stat-label">Program Plan</span><span id="statPlan" class="stat-val">0</span></div>
-      <div class="stat-card" style="background: var(--success);"><span class="stat-label">Sesi Realisasi</span><span id="statReal" class="stat-val">0</span></div>
-      <div class="stat-card" style="background: var(--red);"><span class="stat-label">Index Kepatuhan</span><span id="statIndex" class="stat-val">0%</span></div>
+    <div class="side-dock no-print">
+      <button class="dock-btn" onclick="saveAnnualPlan()" title="Simpan ke Database">💾</button>
+      <button class="dock-btn" onclick="loadAnnualPlans()" title="Buka dari Database">📂</button>
+      <button class="dock-btn" onclick="printPDF()" title="Print / PDF">🖨️</button>
+      <input type="file" id="fInput" style="display:none" onchange="importData(event)" />
     </div>
 
-    <div class="card" style="background: #f8fafc; border: 1px solid var(--accent);">
-      <h3 style="color:var(--accent); margin-bottom:15px; display:flex; align-items:center; gap:10px">
-        📈 TOTAL AKUMULASI LATIHAN (Year to Date)
-      </h3>
-      <div class="realization-grid">
-        <div class="real-card">
-          <div class="real-icon">🏋️</div>
-          <div>
-            <span class="real-label">Total Angkatan</span>
-            <span class="real-value" id="total-str">0 <small>kg</small></span>
-          </div>
+    <section id="step1" class="content-section active">
+      <div class="card">
+        <h2 style="margin-bottom:20px">Parameter Master Program</h2>
+        <div class="grid">
+          <div style="grid-column: span 2;"><label>Nama Program</label><input type="text" id="planName" value="Annual Plan 2025"></div>
+          <div><label>Mulai Tanggal</label><input type="date" id="start"></div>
+          <div><label>Target Tanding</label><input type="date" id="match"></div>
+          <div><label>Kekuatan (kg)</label><input type="number" id="tK" value="100"></div>
+          <div><label>Kecepatan (m)</label><input type="number" id="tV" value="1000"></div>
+          <div><label>Daya Tahan (km)</label><input type="number" id="tD" value="10"></div>
+          <div><label>Teknik (rep)</label><input type="number" id="tTek" value="500"></div>
+          <div><label>Taktik (rep)</label><input type="number" id="tTak" value="200"></div>
         </div>
-        <div class="real-card">
-          <div class="real-icon">⚡</div>
-          <div>
-            <span class="real-label">Jarak Sprint</span>
-            <span class="real-value" id="total-spd">0 <small>m</small></span>
+        <button onclick="initPlan()"
+          style="width:100%; margin-top:20px; padding:15px; background:var(--primary); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:800">
+          GENERATE PROGRAM
+        </button>
+      </div>
+    </section>
+
+    <section id="step2" class="content-section">
+      <h2 id="displayTitle" style="text-align:center; text-transform:uppercase; margin-bottom:20px"></h2>
+
+      <div class="card">
+        <label>Editor Struktur Mesocycle</label>
+        <div id="mesoEditorGrid" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+        <div id="lockInfo" style="margin-top:15px; font-size:0.75rem; font-weight:800; border-top:1px solid #eee; padding-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <div class="chart-layout">
+          <div class="chart-legend-side">
+            <div class="legend-item-side" style="color: var(--accent);">VOLUME LOAD</div>
+            <div class="legend-item-side" style="color: var(--red);">INTENSITAS</div>
           </div>
-        </div>
-        <div class="real-card">
-          <div class="real-icon">🏃</div>
-          <div>
-            <span class="real-label">Jarak Lari</span>
-            <span class="real-value" id="total-end">0 <small>km</small></span>
-          </div>
-        </div>
-        <div class="real-card">
-          <div class="real-icon">⚽</div>
-          <div>
-            <span class="real-label">Volume Teknik</span>
-            <span class="real-value" id="total-tek">0 <small>reps</small></span>
-          </div>
-        </div>
-        <div class="real-card">
-          <div class="real-icon">🧠</div>
-          <div>
-            <span class="real-label">Volume Taktik</span>
-            <span class="real-value" id="total-tak">0 <small>reps</small></span>
+          <div class="chart-main-area">
+            <canvas id="mainChart"></canvas>
+            <div id="mesoStrip" style="display:flex; height:25px; margin-top:5px; border-radius:4px; overflow:hidden;"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <h3 style="margin-bottom: 15px;">Persentase Target Tercapai (Plan vs Real)</h3>
-      <div class="component-grid" id="componentStatsContainer"></div>
-    </div>
+      <div class="card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:50px">Wk</th>
+                <th style="width:120px">Meso</th>
+                <th style="width:100px">Phase</th>
+                <th style="width:80px">Vol%</th>
+                <th style="width:80px">Int%</th>
+                <th>Kekuatan</th><th>Kecepatan</th><th>D.Tahan</th><th>Teknik</th><th>Taktik</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>Tren Volume: Plan vs Realisasi</h3>
-      <p style="font-size: 0.7rem; color: #64748b; margin-bottom: 15px;">Membandingkan rata-rata volume rencana dengan volume yang benar-benar terlaksana.</p>
-      <div style="height:350px"><canvas id="monitorComparisonChart"></canvas></div>
-      <div id="indexExplanation" class="index-box">Index 100% berarti semua sesi latihan dilaksanakan sesuai rencana.</div>
-    </div>
+    <section id="step3" class="content-section">
+      <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center">
+        <h2>Kalender Kerja Bulanan</h2>
+        <select id="monthViewSelector" style="width:200px" onchange="renderMonthlyCalendar()"></select>
+      </div>
+      <div id="monthGrid"></div>
+    </section>
 
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px">
-      <div class="card"><h3>Distribusi Intensitas (Plan)</h3><div style="height:300px"><canvas id="monitorPieChart"></canvas></div></div>
-      <div class="card"><h3>Tingkat Kehadiran Per Bulan</h3><div style="height:300px"><canvas id="monitorBarChart"></canvas></div></div>
-    </div>
-  </section>
+    <section id="step4" class="content-section">
+      <h2 style="margin-bottom:20px">Dashboard Analisis & Efektivitas</h2>
 
-  <div id="sessionModal" class="modal">
-    <div class="modal-content">
-      <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:2px solid #f1f5f9; padding-bottom:10px">
-        <h3 id="modalDayName">Detail Latihan</h3>
-        <div style="display:flex; align-items:center; gap:15px;">
-          <label style="margin:0; color:var(--success);">
-            <input type="checkbox" id="isDone" style="width:auto; margin-right:5px"> SELESAI
-          </label>
-          <select id="dayIntSelect" style="width:140px; font-weight:800">
-            <option value="Rest">REST</option>
-            <option value="Low">LOW</option>
-            <option value="Med">MEDIUM</option>
-            <option value="High">HIGH</option>
-          </select>
+      <div class="stat-grid">
+        <div class="stat-card" style="background: var(--primary);"><span class="stat-label">Total Minggu</span><span id="statWk" class="stat-val">0</span></div>
+        <div class="stat-card" style="background: var(--accent);"><span class="stat-label">Program Plan</span><span id="statPlan" class="stat-val">0</span></div>
+        <div class="stat-card" style="background: var(--success);"><span class="stat-label">Sesi Realisasi</span><span id="statReal" class="stat-val">0</span></div>
+        <div class="stat-card" style="background: var(--red);"><span class="stat-label">Index Kepatuhan</span><span id="statIndex" class="stat-val">0%</span></div>
+      </div>
+
+      <div class="card" style="background: #f8fafc; border: 1px solid var(--accent);">
+        <h3 style="color:var(--accent); margin-bottom:15px; display:flex; align-items:center; gap:10px">
+          📈 TOTAL AKUMULASI LATIHAN (Year to Date)
+        </h3>
+        <div class="realization-grid">
+          <div class="real-card">
+            <div class="real-icon">🏋️</div>
+            <div>
+              <span class="real-label">Total Angkatan</span>
+              <span class="real-value" id="total-str">0 <small>kg</small></span>
+            </div>
+          </div>
+          <div class="real-card">
+            <div class="real-icon">⚡</div>
+            <div>
+              <span class="real-label">Jarak Sprint</span>
+              <span class="real-value" id="total-spd">0 <small>m</small></span>
+            </div>
+          </div>
+          <div class="real-card">
+            <div class="real-icon">🏃</div>
+            <div>
+              <span class="real-label">Jarak Lari</span>
+              <span class="real-value" id="total-end">0 <small>km</small></span>
+            </div>
+          </div>
+          <div class="real-card">
+            <div class="real-icon">⚽</div>
+            <div>
+              <span class="real-label">Volume Teknik</span>
+              <span class="real-value" id="total-tek">0 <small>reps</small></span>
+            </div>
+          </div>
+          <div class="real-card">
+            <div class="real-icon">🧠</div>
+            <div>
+              <span class="real-label">Volume Taktik</span>
+              <span class="real-value" id="total-tak">0 <small>reps</small></span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:12px">
-        <div><label>🔥 Warm Up</label><textarea id="warmupInput" rows="2" placeholder="Contoh: Jogging 10 menit..."></textarea></div>
+      <div class="card">
+        <h3 style="margin-bottom: 15px;">Persentase Target Tercapai (Plan vs Real)</h3>
+        <div class="component-grid" id="componentStatsContainer"></div>
+      </div>
 
-        <div>
-          <label>🎯 Main Set</label>
-          <table><tbody id="exerciseBody"></tbody></table>
-          <button onclick="addExerciseRow()"
-            style="background:var(--accent); color:white; border:none; padding:8px 15px; border-radius:6px; font-size:0.7rem; margin-top:10px; cursor:pointer">
-            + Tambah Item
+      <div class="card">
+        <h3>Tren Volume: Plan vs Realisasi</h3>
+        <p style="font-size: 0.7rem; color: #64748b; margin-bottom: 15px;">Membandingkan rata-rata volume rencana dengan volume yang benar-benar terlaksana.</p>
+        <div style="height:350px"><canvas id="monitorComparisonChart"></canvas></div>
+        <div id="indexExplanation" class="index-box">Index 100% berarti semua sesi latihan dilaksanakan sesuai rencana.</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px">
+        <div class="card"><h3>Distribusi Intensitas (Plan)</h3><div style="height:300px"><canvas id="monitorPieChart"></canvas></div></div>
+        <div class="card"><h3>Tingkat Kehadiran Per Bulan</h3><div style="height:300px"><canvas id="monitorBarChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <div id="sessionModal" class="modal">
+      <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:2px solid #f1f5f9; padding-bottom:10px">
+          <h3 id="modalDayName">Detail Latihan</h3>
+          <div style="display:flex; align-items:center; gap:15px;">
+            <label style="margin:0; color:var(--success);">
+              <input type="checkbox" id="isDone" style="width:auto; margin-right:5px"> SELESAI
+            </label>
+            <select id="dayIntSelect" style="width:140px; font-weight:800">
+              <option value="Rest">REST</option>
+              <option value="Low">LOW</option>
+              <option value="Med">MEDIUM</option>
+              <option value="High">HIGH</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px">
+          <div><label>🔥 Warm Up</label><textarea id="warmupInput" rows="2" placeholder="Contoh: Jogging 10 menit..."></textarea></div>
+
+          <div>
+            <label>🎯 Main Set</label>
+            <table><tbody id="exerciseBody"></tbody></table>
+            <button onclick="addExerciseRow()"
+              style="background:var(--accent); color:white; border:none; padding:8px 15px; border-radius:6px; font-size:0.7rem; margin-top:10px; cursor:pointer">
+              + Tambah Item
+            </button>
+          </div>
+
+          <div><label>❄️ Cooling Down</label><textarea id="cooldownInput" rows="2" placeholder="Contoh: Static stretching..."></textarea></div>
+
+          <div style="background:#ecfdf5; padding:10px; border-radius:10px;">
+            <label>🌿 Recovery & Notes</label>
+            <textarea id="recoveryInput" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px">
+          <button onclick="saveSession()"
+            style="flex:2; background:var(--primary); color:white; padding:12px; border:none; border-radius:10px; font-weight:800; cursor:pointer">
+            SIMPAN
+          </button>
+          <button onclick="closeModal()"
+            style="flex:1; background:#64748b; color:white; padding:12px; border:none; border-radius:10px; font-weight:800; cursor:pointer">
+            BATAL
           </button>
         </div>
-
-        <div><label>❄️ Cooling Down</label><textarea id="cooldownInput" rows="2" placeholder="Contoh: Static stretching..."></textarea></div>
-
-        <div style="background:#ecfdf5; padding:10px; border-radius:10px;">
-          <label>🌿 Recovery & Notes</label>
-          <textarea id="recoveryInput" rows="2"></textarea>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-top:20px">
-        <button onclick="saveSession()"
-          style="flex:2; background:var(--primary); color:white; padding:12px; border:none; border-radius:10px; font-weight:800; cursor:pointer">
-          SIMPAN
-        </button>
-        <button onclick="closeModal()"
-          style="flex:1; background:#64748b; color:white; padding:12px; border:none; border-radius:10px; font-weight:800; cursor:pointer">
-          BATAL
-        </button>
       </div>
     </div>
-  </div>
+
+  </section> <!-- end appSection -->
 
   <script>
+    // =========================
+    // AUTH: login gate
+    // =========================
+    async function doLogin(){
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const msg = document.getElementById("loginMsg");
+      if(!email || !password){ msg.textContent = "Email dan password wajib diisi."; return; }
+      msg.textContent = "Memproses...";
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if(error){ msg.textContent = error.message; return; }
+
+      const userEmail = data?.user?.email || email;
+      document.getElementById("userEmailLabel").textContent = userEmail;
+
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("appSection").style.display = "block";
+      msg.textContent = "";
+    }
+
+    async function doLogout(){
+      await supabaseClient.auth.signOut();
+      document.getElementById("appSection").style.display = "none";
+      document.getElementById("loginSection").style.display = "flex";
+      document.getElementById("loginMsg").textContent = "";
+    }
+
+    // Auto-check session saat halaman dibuka
+    supabaseClient.auth.getSession().then(({ data }) => {
+      const sess = data?.session;
+      if(sess){
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("appSection").style.display = "block";
+        document.getElementById("userEmailLabel").textContent = sess.user.email || "-";
+      } else {
+        document.getElementById("loginSection").style.display = "flex";
+        document.getElementById("appSection").style.display = "none";
+      }
+    });
+
+    // =========================
+    // APP LOGIC (asli Anda)
+    // =========================
     let chart; let monitorPie; let monitorBar; let compChart;
     let mesocycles = []; let planData = []; let weeklySessions = {};
     let totalWkLocked = 0;
@@ -496,13 +532,18 @@
       document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-      const btnId = 'btn' + id.slice(-1);
-      if (document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
+
+      const btnMap = { step1: "btn1", step2: "btn2", step3: "btn3", step4: "btn4" };
+      const btnId = btnMap[id];
+      if (btnId && document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
+
+      // FIX: update title ketika buka step2
+      if (id === 'step2') {
+        const name = (document.getElementById('planName')?.value || '').trim();
+        document.getElementById('displayTitle').innerText = name ? name : 'ANNUAL PLAN';
+      }
     }
-    if (id === 'step2') {
-  const name = (document.getElementById('planName')?.value || '').trim();
-  document.getElementById('displayTitle').innerText = name ? name : 'ANNUAL PLAN';
-}
+
     function initPlan() {
       const sVal = document.getElementById('start').value;
       const mVal = document.getElementById('match').value;
@@ -518,6 +559,7 @@
         mesocycles.push({ name: "MESO " + c, weeks: wk });
         rem -= wk; c++;
       }
+
       document.getElementById('displayTitle').innerText = document.getElementById('planName').value;
       refreshUI(); showSection('step2');
     }
@@ -527,6 +569,7 @@
     function renderMesoEditor() {
       const container = document.getElementById('mesoEditorGrid'); container.innerHTML = "";
       let used = 0;
+
       mesocycles.forEach((m, i) => {
         used += m.weeks;
         const div = document.createElement('div');
@@ -676,7 +719,7 @@
       });
     }
 
-    // --- FUNGSI MONITORING UTAMA ---
+    // --- Monitoring (biarkan sesuai versi Anda) ---
     function initMonitoring() {
       showSection('step4');
 
@@ -684,7 +727,6 @@
       const monthRealVolumes = [];
       const monthPlanVolumes = [];
 
-      // total akumulasi real (berdasarkan exercise category)
       let totalReal = { str: 0, spd: 0, end: 0, tek: 0, tak: 0 };
 
       Object.values(weeklySessions).forEach(s => {
@@ -699,8 +741,8 @@
             let cat = ex.cat || 'strength';
 
             if (cat === 'strength')  totalReal.str += (st * rp * ld);
-            if (cat === 'speed')     totalReal.spd += (st * ld); // load dianggap jarak (m)
-            if (cat === 'endurance') totalReal.end += (st * ld); // load dianggap jarak (km)
+            if (cat === 'speed')     totalReal.spd += (st * ld);
+            if (cat === 'endurance') totalReal.end += (st * ld);
             if (cat === 'technique') totalReal.tek += (st * rp);
             if (cat === 'tactic')    totalReal.tak += (st * rp);
           });
@@ -710,24 +752,20 @@
         if (s.int === 'Rest') rest++;
       });
 
-      // render angka akumulasi
       document.getElementById('total-str').innerHTML = `${Math.round(totalReal.str).toLocaleString('id-ID')} <small>kg</small>`;
       document.getElementById('total-spd').innerHTML = `${Math.round(totalReal.spd).toLocaleString('id-ID')} <small>m</small>`;
       document.getElementById('total-end').innerHTML = `${(Math.round(totalReal.end * 10) / 10).toLocaleString('id-ID')} <small>km</small>`;
       document.getElementById('total-tek').innerHTML = `${Math.round(totalReal.tek).toLocaleString('id-ID')} <small>reps</small>`;
       document.getElementById('total-tak').innerHTML = `${Math.round(totalReal.tak).toLocaleString('id-ID')} <small>reps</small>`;
 
-      // statistik umum
       document.getElementById('statWk').innerText = planData.length;
       document.getElementById('statPlan').innerText = planCount;
       document.getElementById('statReal').innerText = realCount;
       const index = planCount > 0 ? Math.round((realCount / planCount) * 100) : 0;
       document.getElementById('statIndex').innerText = index + "%";
 
-      // panel komponen
       calculateComponentStats();
 
-      // grafik perbandingan plan vs real
       const compCtx = document.getElementById('monitorComparisonChart').getContext('2d');
       if (compChart) compChart.destroy();
 
@@ -740,12 +778,10 @@
           const wkIdx = i * 4 + j;
           if (planData[wkIdx]) {
             planSum += planData[wkIdx].vol;
-
             let wkDone = false;
             ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"].forEach(d => {
               if (weeklySessions[`W${planData[wkIdx].wk}-${d}`]?.isDone) wkDone = true;
             });
-
             realSum += wkDone ? planData[wkIdx].vol : 0;
             count++;
           }
@@ -766,7 +802,6 @@
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
       });
 
-      // pie distribusi intensitas (plan)
       const pCtx = document.getElementById('monitorPieChart').getContext('2d');
       if (monitorPie) monitorPie.destroy();
       monitorPie = new Chart(pCtx, {
@@ -778,7 +813,6 @@
         options: { maintainAspectRatio: false }
       });
 
-      // bar kehadiran (sederhana)
       const bCtx = document.getElementById('monitorBarChart').getContext('2d');
       if (monitorBar) monitorBar.destroy();
       monitorBar = new Chart(bCtx, {
@@ -791,7 +825,6 @@
       });
     }
 
-    // --- HITUNG PERSENTASE TARGET (Plan vs Real %) ---
     function calculateComponentStats() {
       const baseK = parseFloat(document.getElementById('tK').value) || 0;
       const baseV = parseFloat(document.getElementById('tV').value) || 0;
@@ -950,7 +983,6 @@
       document.getElementById('sessionModal').style.display = 'flex';
     }
 
-    // --- UPDATE: Row Latihan (FIX agar placeholder Set/Rep/Beban tidak terpotong) ---
     function addExerciseRow(n = "", c = "strength", s = "", r = "", l = "") {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -1004,29 +1036,6 @@
 
     function closeModal() { document.getElementById('sessionModal').style.display = 'none'; }
 
-    function exportData() {
-      const obj = {
-        plan: planData,
-        meso: mesocycles,
-        sessions: weeklySessions,
-        config: {
-          name: document.getElementById('planName').value,
-          start: document.getElementById('start').value,
-          match: document.getElementById('match').value,
-          tk: document.getElementById('tK').value,
-          tv: document.getElementById('tV').value,
-          td: document.getElementById('tD').value,
-          tTek: document.getElementById('tTek').value,
-          tTak: document.getElementById('tTak').value
-        }
-      };
-
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: 'application/json' }));
-      a.download = `${document.getElementById('planName').value}.json`;
-      a.click();
-    }
-
     function importData(e) {
       const r = new FileReader();
       r.onload = (ev) => {
@@ -1050,153 +1059,104 @@
       };
       r.readAsText(e.target.files[0]);
     }
+
     function printPDF() {
-  // Tutup modal jika terbuka agar tidak ikut tercetak
-  const modal = document.getElementById('sessionModal');
-  if (modal) modal.style.display = 'none';
-
-  // Pastikan chart resize dulu (Chart.js kadang perlu)
-  try {
-    if (chart) chart.resize();
-    if (compChart) compChart.resize();
-    if (monitorPie) monitorPie.resize();
-    if (monitorBar) monitorBar.resize();
-  } catch (e) {}
-
-  setTimeout(() => {
-    window.print();
-  }, 300);
-}
-async function saveAnnualPlan() {
-  const planName = document.getElementById("planName")?.value || "Unnamed Plan";
-
-  const payload = {
-    created_from: "web",
-    timestamp: new Date().toISOString(),
-    // nanti kita isi annual plan detail di sini
-  };
-
-  const { data, error } = await supabaseClient
-    .from("hirocross_plans")
-    .insert([
-      {
-        plan_name: planName,
-        payload: payload
-      }
-    ]);
-
-  if (error) {
-    console.error("GAGAL SIMPAN:", error);
-    alert("Gagal menyimpan ke database");
-  } else {
-    console.log("BERHASIL:", data);
-    alert("Program berhasil disimpan ke database");
-  }
-}
-async function saveAnnualPlan() {
-  const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
-
-  const payload = {
-    config: {
-      name: planName,
-      start: document.getElementById('start')?.value || "",
-      match: document.getElementById('match')?.value || "",
-      tk: document.getElementById('tK')?.value || "",
-      tv: document.getElementById('tV')?.value || "",
-      td: document.getElementById('tD')?.value || "",
-      tTek: document.getElementById('tTek')?.value || "",
-      tTak: document.getElementById('tTak')?.value || ""
-    },
-    meso: mesocycles || [],
-    plan: planData || [],
-    sessions: weeklySessions || {},
-    meta: {
-      created_from: "web",
-      timestamp: new Date().toISOString()
+      const modal = document.getElementById('sessionModal');
+      if (modal) modal.style.display = 'none';
+      try {
+        if (chart) chart.resize();
+        if (compChart) compChart.resize();
+        if (monitorPie) monitorPie.resize();
+        if (monitorBar) monitorBar.resize();
+      } catch (e) {}
+      setTimeout(() => window.print(), 300);
     }
-  };
 
-  const { data, error } = await supabaseClient
-    .from("hirocross_plans")
-    .insert([{ plan_name: planName, payload }])
-    .select();
+    // =========================
+    // SUPABASE: Save / Load
+    // =========================
+    async function saveAnnualPlan() {
+      const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
 
-  if (error) {
-    console.error("GAGAL SIMPAN:", error);
-    alert("Gagal menyimpan: " + (error.message || "unknown"));
-    return;
-  }
+      const payload = {
+        config: {
+          name: planName,
+          start: document.getElementById('start')?.value || "",
+          match: document.getElementById('match')?.value || "",
+          tk: document.getElementById('tK')?.value || "",
+          tv: document.getElementById('tV')?.value || "",
+          td: document.getElementById('tD')?.value || "",
+          tTek: document.getElementById('tTek')?.value || "",
+          tTak: document.getElementById('tTak')?.value || ""
+        },
+        meso: mesocycles || [],
+        plan: planData || [],
+        sessions: weeklySessions || {},
+        meta: { created_from: "web", timestamp: new Date().toISOString() }
+      };
 
-  console.log("BERHASIL SIMPAN:", data);
-  alert("Program berhasil disimpan ke database");
-}
+      const { data, error } = await supabaseClient
+        .from("hirocross_plans")
+        .insert([{ plan_name: planName, payload }])
+        .select();
 
-async function loadAnnualPlans() {
-  const { data, error } = await supabaseClient
-    .from("hirocross_plans")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(1);
+      if (error) {
+        console.error("GAGAL SIMPAN:", error);
+        alert("Gagal menyimpan: " + (error.message || "unknown"));
+        return;
+      }
+      console.log("BERHASIL SIMPAN:", data);
+      alert("Program berhasil disimpan ke database");
+    }
 
-  if (error) {
-    alert("Gagal mengambil data: " + (error.message || "unknown"));
-    console.error(error);
-    return;
-  }
+    async function loadAnnualPlans() {
+      const { data, error } = await supabaseClient
+        .from("hirocross_plans")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-  if (!data || data.length === 0) {
-    alert("Belum ada data di database");
-    return;
-  }
+      if (error) {
+        alert("Gagal mengambil data: " + (error.message || "unknown"));
+        console.error(error);
+        return;
+      }
+      if (!data || data.length === 0) {
+        alert("Belum ada data di database");
+        return;
+      }
 
-  const row = data[0];
-  const p = row.payload || {};
+      const row = data[0];
+      const p = row.payload || {};
 
-  // restore config
-  if (p.config) {
-    document.getElementById('planName').value = p.config.name || row.plan_name || "";
-    document.getElementById('start').value = p.config.start || "";
-    document.getElementById('match').value = p.config.match || "";
-    document.getElementById('tK').value = p.config.tk || "";
-    document.getElementById('tV').value = p.config.tv || "";
-    document.getElementById('tD').value = p.config.td || "";
-    if (p.config.tTek) document.getElementById('tTek').value = p.config.tTek;
-    if (p.config.tTak) document.getElementById('tTak').value = p.config.tTak;
-  } else {
-    document.getElementById('planName').value = row.plan_name || "";
-  }
+      if (p.config) {
+        document.getElementById('planName').value = p.config.name || row.plan_name || "";
+        document.getElementById('start').value = p.config.start || "";
+        document.getElementById('match').value = p.config.match || "";
+        document.getElementById('tK').value = p.config.tk || "";
+        document.getElementById('tV').value = p.config.tv || "";
+        document.getElementById('tD').value = p.config.td || "";
+        if (p.config.tTek) document.getElementById('tTek').value = p.config.tTek;
+        if (p.config.tTak) document.getElementById('tTak').value = p.config.tTak;
+      } else {
+        document.getElementById('planName').value = row.plan_name || "";
+      }
 
-  mesocycles = p.meso || [];
-  planData = p.plan || [];
-  weeklySessions = p.sessions || {};
-  totalWkLocked = planData.length || 0;
+      mesocycles = p.meso || [];
+      planData = p.plan || [];
+      weeklySessions = p.sessions || {};
+      totalWkLocked = planData.length || 0;
 
-  // render ulang
-  renderMesoEditor();
-  renderTable();
-  populateMonthSelector();
-  updateVisuals();
-  renderMonthlyCalendar();
+      renderMesoEditor();
+      renderTable();
+      populateMonthSelector();
+      updateVisuals();
+      renderMonthlyCalendar();
 
-  alert("Data berhasil dimuat dari database");
-  showSection('step2');
-}
+      alert("Data berhasil dimuat dari database");
+      showSection('step2');
+    }
   </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

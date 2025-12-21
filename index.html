@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HiroCross_Plan</title>
 
-  <!-- FAVICON (ikon tab browser) -->
+  <!-- FAVICON -->
   <link rel="icon" href="./Hirocross-logo.png" type="image/png">
   <link rel="apple-touch-icon" href="./Hirocross-logo.png">
   <meta name="theme-color" content="#0f172a">
@@ -284,14 +284,19 @@
       font-weight:800;
       font-size:.75rem;
     }
+
+    /* App disabled state (biar tidak bisa interaksi sebelum login) */
+    #appSection.app-disabled{
+      pointer-events: none;
+      user-select: none;
+      filter: blur(1px);
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- =========================
-       AUTH OVERLAY (DAFTAR / LOGIN + LUPA PASSWORD)
-       ========================= -->
+  <!-- AUTH OVERLAY -->
   <div id="authOverlay">
     <div class="auth-card">
       <img src="./Hirocross-logo.png" alt="HiroCross Logo" class="login-logo">
@@ -302,31 +307,28 @@
       <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
 
       <div class="auth-actions">
-        <button class="btn-primary" onclick="doLogin()">LOGIN</button>
-        <button class="btn-success" onclick="doSignUp()">DAFTAR</button>
+        <button id="btnLogin" class="btn-primary" type="button">LOGIN</button>
+        <button id="btnSignUp" class="btn-success" type="button">DAFTAR</button>
       </div>
 
       <div class="auth-links">
-        <a onclick="sendResetEmail()">Lupa password?</a>
-        <a onclick="fillDemoEmail()">Isi email</a>
+        <a id="linkForgot" role="button">Lupa password?</a>
+        <a id="linkFill" role="button">Isi email</a>
       </div>
 
-      <!-- Reset password box (muncul otomatis kalau user buka link recovery dari email) -->
       <div id="resetBox">
         <h3>Reset Password</h3>
         <input id="newPass1" type="password" placeholder="Password baru (min 6)" autocomplete="new-password" />
         <input id="newPass2" type="password" placeholder="Ulangi password baru" autocomplete="new-password" />
-        <button class="btn-primary" onclick="submitNewPassword()">SIMPAN PASSWORD BARU</button>
+        <button id="btnSaveNewPass" class="btn-primary" type="button">SIMPAN PASSWORD BARU</button>
       </div>
 
       <div id="authMsg" class="auth-msg"></div>
     </div>
   </div>
 
-  <!-- =========================
-       APP SECTION
-       ========================= -->
-  <section id="appSection">
+  <!-- APP SECTION -->
+  <section id="appSection" class="app-disabled">
 
     <header>
       <div class="brand">
@@ -335,23 +337,23 @@
       </div>
 
       <nav>
-        <button id="btn1" class="active" onclick="showSection('step1')">SETUP</button>
-        <button id="btn2" onclick="showSection('step2')">ANNUAL PLAN</button>
-        <button id="btn3" onclick="showSection('step3')">BULANAN</button>
-        <button id="btn4" onclick="initMonitoring()">MONITORING</button>
+        <button id="btn1" class="active" type="button">SETUP</button>
+        <button id="btn2" type="button">ANNUAL PLAN</button>
+        <button id="btn3" type="button">BULANAN</button>
+        <button id="btn4" type="button">MONITORING</button>
       </nav>
 
       <div class="topbar-user no-print">
         <span id="userEmailLabel">-</span>
-        <button onclick="doLogout()">LOGOUT</button>
+        <button id="btnLogout" type="button">LOGOUT</button>
       </div>
     </header>
 
     <div class="side-dock no-print">
-      <button class="dock-btn" onclick="saveAnnualPlan()" title="Simpan ke Database">💾</button>
-      <button class="dock-btn" onclick="loadAnnualPlans()" title="Buka dari Database">📂</button>
-      <button class="dock-btn" onclick="printPDF()" title="Print / PDF">🖨️</button>
-      <input type="file" id="fInput" style="display:none" onchange="importData(event)" />
+      <button id="btnSaveDb" class="dock-btn" type="button" title="Simpan ke Database">💾</button>
+      <button id="btnLoadDb" class="dock-btn" type="button" title="Buka dari Database">📂</button>
+      <button id="btnPrint" class="dock-btn" type="button" title="Print / PDF">🖨️</button>
+      <input type="file" id="fInput" style="display:none" />
     </div>
 
     <section id="step1" class="content-section active">
@@ -367,7 +369,8 @@
           <div><label>Teknik (rep)</label><input type="number" id="tTek" value="500"></div>
           <div><label>Taktik (rep)</label><input type="number" id="tTak" value="200"></div>
         </div>
-        <button onclick="initPlan()"
+        <button id="btnGeneratePlan"
+          type="button"
           style="width:100%; margin-top:20px; padding:15px; background:var(--primary); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:800">
           GENERATE PROGRAM
         </button>
@@ -418,7 +421,7 @@
     <section id="step3" class="content-section">
       <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center">
         <h2>Kalender Kerja Bulanan</h2>
-        <select id="monthViewSelector" style="width:200px" onchange="renderMonthlyCalendar()"></select>
+        <select id="monthViewSelector" style="width:200px"></select>
       </div>
       <div id="monthGrid"></div>
     </section>
@@ -517,7 +520,8 @@
           <div>
             <label>🎯 Main Set</label>
             <table><tbody id="exerciseBody"></tbody></table>
-            <button onclick="addExerciseRow()"
+            <button id="btnAddExercise"
+              type="button"
               style="background:var(--accent); color:white; border:none; padding:8px 15px; border-radius:6px; font-size:0.7rem; margin-top:10px; cursor:pointer">
               + Tambah Item
             </button>
@@ -532,11 +536,13 @@
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px">
-          <button onclick="saveSession()"
+          <button id="btnSaveSession"
+            type="button"
             style="flex:2; background:var(--primary); color:white; padding:12px; border:none; border-radius:10px; font-weight:800; cursor:pointer">
             SIMPAN
           </button>
-          <button onclick="closeModal()"
+          <button id="btnCloseModal"
+            type="button"
             style="flex:1; background:#64748b; color:white; padding:12px; border:none; border-radius:10px; font-weight:800; cursor:pointer">
             BATAL
           </button>
@@ -548,9 +554,8 @@
 
   <script>
     // =========================
-    // AUTH: DAFTAR / LOGIN / LOGOUT + LUPA PASSWORD
+    // AUTH
     // =========================
-
     function setAuthMsg(text, isOk=false){
       const el = document.getElementById("authMsg");
       el.style.color = isOk ? "#10b981" : "#ef4444";
@@ -564,82 +569,105 @@
     }
 
     function getSiteUrlForRedirect(){
-      // Netlify biasanya pakai domain final (bukan localhost).
-      // Jika Anda deploy di Netlify, ini otomatis pakai origin saat ini.
       return window.location.origin + window.location.pathname;
     }
 
+    function setAppEnabled(isEnabled){
+      const overlay = document.getElementById("authOverlay");
+      const app = document.getElementById("appSection");
+      if(isEnabled){
+        overlay.style.display = "none";
+        app.classList.remove("app-disabled");
+      } else {
+        overlay.style.display = "flex";
+        app.classList.add("app-disabled");
+      }
+    }
+
     async function doLogin(){
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      if(!email || !password){ setAuthMsg("Email dan password wajib diisi."); return; }
-      setAuthMsg("Memproses...", true);
+      try{
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        if(!email || !password){ setAuthMsg("Email dan password wajib diisi."); return; }
+        setAuthMsg("Memproses...", true);
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if(error){ setAuthMsg("Login gagal: " + error.message); return; }
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if(error){ setAuthMsg("Login gagal: " + error.message); return; }
 
-      const userEmail = data?.user?.email || email;
-      document.getElementById("userEmailLabel").textContent = userEmail;
+        const userEmail = data?.user?.email || email;
+        document.getElementById("userEmailLabel").textContent = userEmail;
 
-      document.getElementById("authOverlay").style.display = "none";
-      document.getElementById("resetBox").style.display = "none";
-      setAuthMsg("");
+        document.getElementById("resetBox").style.display = "none";
+        setAuthMsg("");
+        setAppEnabled(true);
+      } catch(err){
+        console.error(err);
+        setAuthMsg("Login gagal: " + (err?.message || "unknown"));
+      }
     }
 
     async function doSignUp(){
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      if(!email || !password){ setAuthMsg("Email dan password wajib diisi."); return; }
-      if(password.length < 6){ setAuthMsg("Password minimal 6 karakter."); return; }
-      setAuthMsg("Membuat akun...", true);
+      try{
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        if(!email || !password){ setAuthMsg("Email dan password wajib diisi."); return; }
+        if(password.length < 6){ setAuthMsg("Password minimal 6 karakter."); return; }
+        setAuthMsg("Membuat akun...", true);
 
-      const { error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          // Jika project Anda memakai email confirmation, link verifikasi akan kembali ke URL ini.
-          emailRedirectTo: getSiteUrlForRedirect()
+        const { error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: getSiteUrlForRedirect() }
+        });
+
+        if(error){
+          setAuthMsg("Daftar gagal: " + error.message);
+          return;
         }
-      });
 
-      if(error){
-        setAuthMsg("Daftar gagal: " + error.message);
-        return;
+        setAuthMsg("Akun dibuat. Jika diminta verifikasi email, cek inbox lalu login.", true);
+      } catch(err){
+        console.error(err);
+        setAuthMsg("Daftar gagal: " + (err?.message || "unknown"));
       }
-
-      setAuthMsg("Akun dibuat. Jika diminta verifikasi email, cek inbox lalu login.", true);
     }
 
     async function doLogout(){
-      await supabaseClient.auth.signOut();
-      document.getElementById("authOverlay").style.display = "flex";
-      document.getElementById("userEmailLabel").textContent = "-";
-      document.getElementById("resetBox").style.display = "none";
-      setAuthMsg("");
+      try{
+        await supabaseClient.auth.signOut();
+      } finally {
+        document.getElementById("userEmailLabel").textContent = "-";
+        document.getElementById("resetBox").style.display = "none";
+        setAuthMsg("");
+        setAppEnabled(false);
+      }
     }
 
-    // ---- Forgot password: kirim email reset ----
     async function sendResetEmail(){
-      const email = document.getElementById("loginEmail").value.trim();
-      if(!email){
-        setAuthMsg("Isi email dulu, lalu klik Lupa password.");
-        return;
+      try{
+        const email = document.getElementById("loginEmail").value.trim();
+        if(!email){
+          setAuthMsg("Isi email dulu, lalu klik Lupa password.");
+          return;
+        }
+        setAuthMsg("Mengirim link reset ke email...", true);
+
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: getSiteUrlForRedirect()
+        });
+
+        if(error){
+          setAuthMsg("Gagal kirim email reset: " + error.message);
+          return;
+        }
+
+        setAuthMsg("Link reset terkirim. Cek inbox/spam email Anda.", true);
+      } catch(err){
+        console.error(err);
+        setAuthMsg("Gagal kirim email reset: " + (err?.message || "unknown"));
       }
-      setAuthMsg("Mengirim link reset ke email...", true);
-
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: getSiteUrlForRedirect()
-      });
-
-      if(error){
-        setAuthMsg("Gagal kirim email reset: " + error.message);
-        return;
-      }
-
-      setAuthMsg("Link reset terkirim. Cek inbox/spam email Anda.", true);
     }
 
-    // ---- Recovery handler: jika user klik link dari email, munculkan form reset ----
     function parseHashParams(){
       const h = window.location.hash || "";
       const raw = h.startsWith("#") ? h.slice(1) : h;
@@ -650,18 +678,13 @@
     }
 
     async function handleRecoveryFromUrl(){
-      // Supabase reset link biasanya menaruh token di URL hash.
-      // contoh: #access_token=...&refresh_token=...&type=recovery
       const p = parseHashParams();
       if(p.type !== "recovery") return;
 
-      // Pastikan overlay tampil dan box reset muncul
-      document.getElementById("authOverlay").style.display = "flex";
+      setAppEnabled(false);
       document.getElementById("resetBox").style.display = "block";
       setAuthMsg("Masukkan password baru Anda.", true);
 
-      // Set session dari token recovery (agar updateUser bisa jalan)
-      // Jika refresh_token tidak ada (tergantung setting), tetap coba dengan access_token saja.
       try{
         const access_token = p.access_token || null;
         const refresh_token = p.refresh_token || null;
@@ -670,36 +693,37 @@
           await supabaseClient.auth.setSession({ access_token, refresh_token });
         }
       } catch(e){
-        // tetap tampilkan box reset, user bisa coba lagi
         console.warn("setSession from recovery token failed:", e);
       }
     }
 
     async function submitNewPassword(){
-      const a = (document.getElementById("newPass1").value || "").trim();
-      const b = (document.getElementById("newPass2").value || "").trim();
-      if(a.length < 6){ setAuthMsg("Password baru minimal 6 karakter."); return; }
-      if(a !== b){ setAuthMsg("Password baru tidak sama. Ulangi lagi."); return; }
+      try{
+        const a = (document.getElementById("newPass1").value || "").trim();
+        const b = (document.getElementById("newPass2").value || "").trim();
+        if(a.length < 6){ setAuthMsg("Password baru minimal 6 karakter."); return; }
+        if(a !== b){ setAuthMsg("Password baru tidak sama. Ulangi lagi."); return; }
 
-      setAuthMsg("Menyimpan password baru...", true);
+        setAuthMsg("Menyimpan password baru...", true);
 
-      const { error } = await supabaseClient.auth.updateUser({ password: a });
-      if(error){
-        setAuthMsg("Gagal update password: " + error.message);
-        return;
+        const { error } = await supabaseClient.auth.updateUser({ password: a });
+        if(error){
+          setAuthMsg("Gagal update password: " + error.message);
+          return;
+        }
+
+        setAuthMsg("Password berhasil diubah. Silakan login.", true);
+
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+        document.getElementById("resetBox").style.display = "none";
+
+        try{ await supabaseClient.auth.signOut(); } catch(e){}
+      } catch(err){
+        console.error(err);
+        setAuthMsg("Gagal update password: " + (err?.message || "unknown"));
       }
-
-      setAuthMsg("Password berhasil diubah. Silakan login.", true);
-
-      // Bersihkan hash token supaya tidak memunculkan reset box lagi
-      history.replaceState(null, "", window.location.pathname + window.location.search);
-      document.getElementById("resetBox").style.display = "none";
-
-      // (Opsional) logout dulu agar user login normal
-      try{ await supabaseClient.auth.signOut(); } catch(e){}
     }
 
-    // Auto-check session saat halaman dibuka + saat state berubah
     async function bootAuth(){
       await handleRecoveryFromUrl();
 
@@ -707,27 +731,27 @@
       const sess = data?.session;
 
       if(sess){
-        document.getElementById("authOverlay").style.display = "none";
         document.getElementById("userEmailLabel").textContent = sess.user.email || "-";
+        setAppEnabled(true);
       } else {
-        document.getElementById("authOverlay").style.display = "flex";
         document.getElementById("userEmailLabel").textContent = "-";
+        setAppEnabled(false);
       }
     }
-    bootAuth();
 
+    // Auth state watcher
     supabaseClient.auth.onAuthStateChange((_event, session) => {
       if(session){
-        document.getElementById("authOverlay").style.display = "none";
         document.getElementById("userEmailLabel").textContent = session.user.email || "-";
+        setAppEnabled(true);
       } else {
-        document.getElementById("authOverlay").style.display = "flex";
         document.getElementById("userEmailLabel").textContent = "-";
+        setAppEnabled(false);
       }
     });
 
     // =========================
-    // APP LOGIC (asli Anda)
+    // APP LOGIC (asli)
     // =========================
     let chart; let monitorPie; let monitorBar; let compChart;
     let mesocycles = []; let planData = []; let weeklySessions = {};
@@ -782,7 +806,7 @@
         const div = document.createElement('div');
         div.style = "background:white; padding:10px; border-radius:10px; border:1px solid #cbd5e1; width:130px; display:flex; flex-direction:column; gap:5px; position:relative;";
         div.innerHTML = `
-          <button onclick="removeMesoRow(${i})" style="position:absolute; right:5px; top:5px; border:none; background:none; cursor:pointer; color:red; font-weight:800;">×</button>
+          <button type="button" onclick="removeMesoRow(${i})" style="position:absolute; right:5px; top:5px; border:none; background:none; cursor:pointer; color:red; font-weight:800;">×</button>
           <input type="text" value="${m.name}" oninput="mesocycles[${i}].name=this.value; recalculate(false)" style="font-size:0.65rem; font-weight:800;">
           <input type="number" value="${m.weeks}" min="1" onchange="mesocycles[${i}].weeks=parseInt(this.value || 1); refreshUI()" style="font-size:0.7rem;">
         `;
@@ -790,6 +814,7 @@
       });
 
       const addBtn = document.createElement('button');
+      addBtn.type = "button";
       addBtn.innerText = "+ MESO";
       addBtn.onclick = () => { mesocycles.push({ name: "MESO " + (mesocycles.length + 1), weeks: 1 }); refreshUI(); };
       addBtn.style = "width:130px; padding:10px; border-radius:10px; border:2px dashed #cbd5e1; background:white; cursor:pointer; font-weight:800; color:var(--accent)";
@@ -926,7 +951,6 @@
       });
     }
 
-    // --- Monitoring (biarkan sesuai versi Anda) ---
     function initMonitoring() {
       showSection('step4');
 
@@ -1207,7 +1231,7 @@
         <td><input type="number" class="er" value="${r}" placeholder="Rep"></td>
         <td><input type="number" class="el" value="${l}" placeholder="Beban/Jarak"></td>
         <td style="text-align:center">
-          <button onclick="this.parentElement.parentElement.remove()"
+          <button type="button" onclick="this.parentElement.parentElement.remove()"
             style="color:#ef4444; border:none; background:none; cursor:pointer; font-weight:900; font-size:18px; line-height:1">×</button>
         </td>
       `;
@@ -1243,30 +1267,6 @@
 
     function closeModal() { document.getElementById('sessionModal').style.display = 'none'; }
 
-    function importData(e) {
-      const r = new FileReader();
-      r.onload = (ev) => {
-        const d = JSON.parse(ev.target.result);
-
-        document.getElementById('planName').value = d.config.name;
-        document.getElementById('start').value = d.config.start;
-        document.getElementById('match').value = d.config.match;
-        document.getElementById('tK').value = d.config.tk;
-        document.getElementById('tV').value = d.config.tv;
-        document.getElementById('tD').value = d.config.td;
-        if (d.config.tTek) document.getElementById('tTek').value = d.config.tTek;
-        if (d.config.tTak) document.getElementById('tTak').value = d.config.tTak;
-
-        mesocycles = d.meso || [];
-        weeklySessions = d.sessions || {};
-        totalWkLocked = (d.plan && d.plan.length) ? d.plan.length : 0;
-
-        refreshUI();
-        showSection('step2');
-      };
-      r.readAsText(e.target.files[0]);
-    }
-
     function printPDF() {
       const modal = document.getElementById('sessionModal');
       if (modal) modal.style.display = 'none';
@@ -1290,163 +1290,209 @@
     }
 
     async function saveAnnualPlan() {
-  let session;
-  try {
-    session = await requireSessionOrThrow();
-  } catch (e) {
-    alert(e.message || "Anda belum login.");
-    document.getElementById("authOverlay").style.display = "flex";
-    return;
-  }
+      let session;
+      try {
+        session = await requireSessionOrThrow();
+      } catch (e) {
+        alert(e.message || "Anda belum login.");
+        setAppEnabled(false);
+        return;
+      }
 
-  const userId = session.user.id; // UUID user login
-  const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
+      const userId = session.user.id;
+      const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
 
-  const payload = {
-    config: {
-      name: planName,
-      start: document.getElementById('start')?.value || "",
-      match: document.getElementById('match')?.value || "",
-      tk: document.getElementById('tK')?.value || "",
-      tv: document.getElementById('tV')?.value || "",
-      td: document.getElementById('tD')?.value || "",
-      tTek: document.getElementById('tTek')?.value || "",
-      tTak: document.getElementById('tTak')?.value || ""
-    },
-    meso: mesocycles || [],
-    plan: planData || [],
-    sessions: weeklySessions || {},
-    meta: { created_from: "web", timestamp: new Date().toISOString() }
-  };
+      const payload = {
+        config: {
+          name: planName,
+          start: document.getElementById('start')?.value || "",
+          match: document.getElementById('match')?.value || "",
+          tk: document.getElementById('tK')?.value || "",
+          tv: document.getElementById('tV')?.value || "",
+          td: document.getElementById('tD')?.value || "",
+          tTek: document.getElementById('tTek')?.value || "",
+          tTak: document.getElementById('tTak')?.value || ""
+        },
+        meso: mesocycles || [],
+        plan: planData || [],
+        sessions: weeklySessions || {},
+        meta: { created_from: "web", timestamp: new Date().toISOString() }
+      };
 
-  const { data, error } = await supabaseClient
-    .from("hirocross_plans")
-    .insert([{ owner_id: userId, plan_name: planName, payload }])
-    .select()
-    .single();
+      const { data, error } = await supabaseClient
+        .from("hirocross_plans")
+        .insert([{ owner_id: userId, plan_name: planName, payload }])
+        .select()
+        .single();
 
-  if (error) {
-    console.error("GAGAL SIMPAN:", error);
-    alert("Gagal menyimpan: " + (error.message || "unknown"));
-    return;
-  }
+      if (error) {
+        console.error("GAGAL SIMPAN:", error);
+        alert("Gagal menyimpan: " + (error.message || "unknown"));
+        return;
+      }
 
-  console.log("BERHASIL SIMPAN:", data);
-  alert("Program berhasil disimpan ke database");
-}
+      console.log("BERHASIL SIMPAN:", data);
+      alert("Program berhasil disimpan ke database");
+    }
 
-   async function loadAnnualPlans() {
-  let session;
-  try {
-    session = await requireSessionOrThrow();
-  } catch (e) {
-    alert(e.message || "Anda belum login.");
-    document.getElementById("authOverlay").style.display = "flex";
-    return;
-  }
+    async function loadAnnualPlans() {
+      let session;
+      try {
+        session = await requireSessionOrThrow();
+      } catch (e) {
+        alert(e.message || "Anda belum login.");
+        setAppEnabled(false);
+        return;
+      }
 
-  const userId = session.user.id;
+      const userId = session.user.id;
 
-  const { data, error } = await supabaseClient
-    .from("hirocross_plans")
-    .select("*")
-    .eq("owner_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1);
+      const { data, error } = await supabaseClient
+        .from("hirocross_plans")
+        .select("*")
+        .eq("owner_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-  if (error) {
-    alert("Gagal mengambil data: " + (error.message || "unknown"));
-    console.error(error);
-    return;
-  }
-  if (!data || data.length === 0) {
-    alert("Belum ada data di database");
-    return;
-  }
+      if (error) {
+        alert("Gagal mengambil data: " + (error.message || "unknown"));
+        console.error(error);
+        return;
+      }
+      if (!data || data.length === 0) {
+        alert("Belum ada data di database");
+        return;
+      }
 
-  const row = data[0];
-  const p = row.payload || {};
+      const row = data[0];
+      const p = row.payload || {};
 
-  if (p.config) {
-    document.getElementById('planName').value = p.config.name || row.plan_name || "";
-    document.getElementById('start').value = p.config.start || "";
-    document.getElementById('match').value = p.config.match || "";
-    document.getElementById('tK').value = p.config.tk || "";
-    document.getElementById('tV').value = p.config.tv || "";
-    document.getElementById('tD').value = p.config.td || "";
-    if (p.config.tTek) document.getElementById('tTek').value = p.config.tTek;
-    if (p.config.tTak) document.getElementById('tTak').value = p.config.tTak;
-  } else {
-    document.getElementById('planName').value = row.plan_name || "";
-  }
+      if (p.config) {
+        document.getElementById('planName').value = p.config.name || row.plan_name || "";
+        document.getElementById('start').value = p.config.start || "";
+        document.getElementById('match').value = p.config.match || "";
+        document.getElementById('tK').value = p.config.tk || "";
+        document.getElementById('tV').value = p.config.tv || "";
+        document.getElementById('tD').value = p.config.td || "";
+        if (p.config.tTek) document.getElementById('tTek').value = p.config.tTek;
+        if (p.config.tTak) document.getElementById('tTak').value = p.config.tTak;
+      } else {
+        document.getElementById('planName').value = row.plan_name || "";
+      }
 
-  mesocycles = p.meso || [];
-  planData = p.plan || [];
-  weeklySessions = p.sessions || {};
-  totalWkLocked = planData.length || 0;
+      mesocycles = p.meso || [];
+      planData = p.plan || [];
+      weeklySessions = p.sessions || {};
+      totalWkLocked = planData.length || 0;
 
-  renderMesoEditor();
-  renderTable();
-  populateMonthSelector();
-  updateVisuals();
-  renderMonthlyCalendar();
+      renderMesoEditor();
+      renderTable();
+      populateMonthSelector();
+      updateVisuals();
+      renderMonthlyCalendar();
 
-  alert("Data berhasil dimuat dari database");
-  showSection('step2');
-}
+      alert("Data berhasil dimuat dari database");
+      showSection('step2');
+    }
 
-    /*
-      =========================
-      SUPABASE RLS (WAJIB agar user lain tidak bisa lihat)
-      Jalankan di Supabase SQL editor:
+    // =========================
+    // EVENT BINDING (FIX UTAMA)
+    // =========================
+    function bindUI(){
+      // Auth buttons
+      document.getElementById("btnLogin").addEventListener("click", (e)=>{ e.preventDefault(); doLogin(); });
+      document.getElementById("btnSignUp").addEventListener("click", (e)=>{ e.preventDefault(); doSignUp(); });
+      document.getElementById("linkForgot").addEventListener("click", (e)=>{ e.preventDefault(); sendResetEmail(); });
+      document.getElementById("linkFill").addEventListener("click", (e)=>{ e.preventDefault(); fillDemoEmail(); });
+      document.getElementById("btnSaveNewPass").addEventListener("click", (e)=>{ e.preventDefault(); submitNewPassword(); });
 
-      -- 1) Tambah kolom owner_id jika belum ada
-      alter table public.hirocross_plans
-      add column if not exists owner_id uuid;
+      // Allow press Enter to login
+      document.getElementById("loginPassword").addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){ e.preventDefault(); doLogin(); }
+      });
 
-      -- 2) Set default owner_id (opsional, tapi bagus)
-      alter table public.hirocross_plans
-      alter column owner_id set default auth.uid();
+      // Top nav
+      document.getElementById("btn1").addEventListener("click", ()=>showSection("step1"));
+      document.getElementById("btn2").addEventListener("click", ()=>showSection("step2"));
+      document.getElementById("btn3").addEventListener("click", ()=>showSection("step3"));
+      document.getElementById("btn4").addEventListener("click", ()=>initMonitoring());
 
-      -- 3) Pastikan owner_id tidak null (kalau data lama ada, update dulu)
-      -- update public.hirocross_plans set owner_id = auth.uid() where owner_id is null;  -- hanya untuk testing admin
-      -- Setelah itu:
-      alter table public.hirocross_plans
-      alter column owner_id set not null;
+      // Logout
+      document.getElementById("btnLogout").addEventListener("click", ()=>doLogout());
 
-      -- 4) Enable RLS
-      alter table public.hirocross_plans enable row level security;
+      // Generate plan
+      document.getElementById("btnGeneratePlan").addEventListener("click", ()=>initPlan());
 
-      -- 5) Policy SELECT
-      drop policy if exists "select_own_plans" on public.hirocross_plans;
-      create policy "select_own_plans"
-      on public.hirocross_plans
-      for select
-      using (owner_id = auth.uid());
+      // Monthly selector
+      document.getElementById("monthViewSelector").addEventListener("change", ()=>renderMonthlyCalendar());
 
-      -- 6) Policy INSERT
-      drop policy if exists "insert_own_plans" on public.hirocross_plans;
-      create policy "insert_own_plans"
-      on public.hirocross_plans
-      for insert
-      with check (owner_id = auth.uid());
+      // Dock
+      document.getElementById("btnSaveDb").addEventListener("click", ()=>saveAnnualPlan());
+      document.getElementById("btnLoadDb").addEventListener("click", ()=>loadAnnualPlans());
+      document.getElementById("btnPrint").addEventListener("click", ()=>printPDF());
 
-      -- 7) Policy UPDATE
-      drop policy if exists "update_own_plans" on public.hirocross_plans;
-      create policy "update_own_plans"
-      on public.hirocross_plans
-      for update
-      using (owner_id = auth.uid())
-      with check (owner_id = auth.uid());
+      // Import
+      document.getElementById("fInput").addEventListener("change", (e)=>importData(e));
 
-      -- 8) Policy DELETE (opsional)
-      drop policy if exists "delete_own_plans" on public.hirocross_plans;
-      create policy "delete_own_plans"
-      on public.hirocross_plans
-      for delete
-      using (owner_id = auth.uid());
-      =========================
-    */
+      // Modal buttons
+      document.getElementById("btnAddExercise").addEventListener("click", ()=>addExerciseRow());
+      document.getElementById("btnSaveSession").addEventListener("click", ()=>saveSession());
+      document.getElementById("btnCloseModal").addEventListener("click", ()=>closeModal());
+    }
+
+    function importData(e) {
+      const file = e?.target?.files?.[0];
+      if(!file) return;
+      const r = new FileReader();
+      r.onload = (ev) => {
+        const d = JSON.parse(ev.target.result);
+
+        document.getElementById('planName').value = d.config.name;
+        document.getElementById('start').value = d.config.start;
+        document.getElementById('match').value = d.config.match;
+        document.getElementById('tK').value = d.config.tk;
+        document.getElementById('tV').value = d.config.tv;
+        document.getElementById('tD').value = d.config.td;
+        if (d.config.tTek) document.getElementById('tTek').value = d.config.tTek;
+        if (d.config.tTak) document.getElementById('tTak').value = d.config.tTak;
+
+        mesocycles = d.meso || [];
+        weeklySessions = d.sessions || {};
+        totalWkLocked = (d.plan && d.plan.length) ? d.plan.length : 0;
+
+        refreshUI();
+        showSection('step2');
+      };
+      r.readAsText(file);
+    }
+
+    // Export functions to window (cadangan kalau ada elemen yang masih pakai onclick internal)
+    window.doLogin = doLogin;
+    window.doSignUp = doSignUp;
+    window.doLogout = doLogout;
+    window.sendResetEmail = sendResetEmail;
+    window.fillDemoEmail = fillDemoEmail;
+    window.submitNewPassword = submitNewPassword;
+
+    window.showSection = showSection;
+    window.initPlan = initPlan;
+    window.initMonitoring = initMonitoring;
+    window.removeMesoRow = removeMesoRow;
+    window.recalculate = recalculate;
+    window.updateVolInt = updateVolInt;
+    window.openModal = openModal;
+    window.addExerciseRow = addExerciseRow;
+    window.saveSession = saveSession;
+    window.closeModal = closeModal;
+    window.saveAnnualPlan = saveAnnualPlan;
+    window.loadAnnualPlans = loadAnnualPlans;
+    window.printPDF = printPDF;
+
+    // Boot
+    document.addEventListener("DOMContentLoaded", async () => {
+      bindUI();
+      await bootAuth();
+    });
   </script>
 
 </body>

@@ -349,7 +349,7 @@
 
     <div class="side-dock no-print">
       <button class="dock-btn" onclick="saveAnnualPlan()" title="Simpan ke Database">💾</button>
-      <button class="dock-btn" onclick="openPlanPicker()" title="Buka / Kelola Plan">📂</button>
+      <button class="dock-btn" onclick="loadAnnualPlans()" title="Buka dari Database">📂</button>
       <button class="dock-btn" onclick="printPDF()" title="Print / PDF">🖨️</button>
       <input type="file" id="fInput" style="display:none" onchange="importData(event)" />
     </div>
@@ -543,60 +543,6 @@
         </div>
       </div>
     </div>
-  <!-- =========================
-       PLAN PICKER MODAL (Multi-Plan)
-       ========================= -->
-  <div id="planPickerModal" class="modal">
-    <div class="modal-content" style="max-width:760px">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-        <h3 style="margin:0">📂 Pilih Annual Plan</h3>
-        <button onclick="closePlanPicker()"
-          style="border:none;background:#64748b;color:#fff;padding:10px 12px;border-radius:10px;font-weight:800;cursor:pointer">
-          TUTUP
-        </button>
-      </div>
-
-      <div class="card" style="margin-bottom:12px">
-        <label>Buat Plan Baru (Save As)</label>
-        <div style="display:flex; gap:10px; align-items:center">
-          <input id="newPlanName" type="text" placeholder="Contoh: Annual Plan 2026 - Atlet A" />
-          <button class="btn-success" style="width:190px" onclick="saveAsNewPlan()">
-            + SIMPAN SEBAGAI BARU
-          </button>
-        </div>
-        <div style="margin-top:8px; font-size:.75rem; color:#64748b">
-          Tips: Isi nama unik agar mudah dicari.
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-          <div>
-            <label>Daftar Plan Anda</label>
-            <div style="font-size:.75rem; color:#64748b">Klik “Buka” untuk memuat plan. Anda juga bisa rename / hapus.</div>
-          </div>
-          <button class="btn-primary" style="width:160px" onclick="refreshPlanList()">
-            🔄 REFRESH
-          </button>
-        </div>
-
-        <div id="planListWrap" class="table-scroll">
-          <table style="min-width:650px">
-            <thead>
-              <tr>
-                <th style="width:240px">Nama Plan</th>
-                <th style="width:160px">Terakhir Update</th>
-                <th style="width:250px">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="planListBody"></tbody>
-          </table>
-        </div>
-
-        <div id="planPickerMsg" style="margin-top:10px; font-size:.8rem; font-weight:800; color:#ef4444; min-height:18px"></div>
-      </div>
-    </div>
-  </div>
 
   </section>
 
@@ -784,13 +730,8 @@
     // APP LOGIC (asli Anda)
     // =========================
     let chart; let monitorPie; let monitorBar; let compChart;
-   let mesocycles = []; let planData = []; let weeklySessions = {};
-   let totalWkLocked = 0;
-
-   // Multi-plan state
-   let currentPlanId = null;      // id plan yang sedang dibuka
-   let currentPlanName = null;    // nama plan yang sedang dibuka
-
+    let mesocycles = []; let planData = []; let weeklySessions = {};
+    let totalWkLocked = 0;
 
     const phColors = { "Umum": "#add8e699", "Khusus": "#90ee9099", "Pra-Komp": "#ffa50099", "Kompetisi": "#ef444499" };
     const intColors = { "High": "#fee2e2", "Med": "#fef9c3", "Low": "#dcfce7", "Rest": "#f1f5f9" };
@@ -1348,311 +1289,111 @@
       return data.session;
     }
 
-    // =========================
-// MULTI-PLAN (List / Open / Save / Save As / Rename / Delete)
-// =========================
-
-function setPlanPickerMsg(text = "", ok = false) {
-  const el = document.getElementById("planPickerMsg");
-  if (!el) return;
-  el.style.color = ok ? "#10b981" : "#ef4444";
-  el.textContent = text;
-}
-
-function openPlanPicker() {
-  document.getElementById("planPickerModal").style.display = "flex";
-  setPlanPickerMsg("");
-  refreshPlanList();
-}
-
-function closePlanPicker() {
-  document.getElementById("planPickerModal").style.display = "none";
-}
-
-async function refreshPlanList() {
+    async function saveAnnualPlan() {
+  let session;
   try {
-    await requireSessionOrThrow();
+    session = await requireSessionOrThrow();
   } catch (e) {
     alert(e.message || "Anda belum login.");
     document.getElementById("authOverlay").style.display = "flex";
     return;
   }
 
-  setPlanPickerMsg("Memuat daftar plan...", true);
+  const userId = session.user.id; // UUID user login
+  const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
 
-  const { data, error } = await supabaseClient
- 
-    .from("hirocross_plans")
-    .select("id, plan_name, updated_at, created_at")
-    .order("updated_at", { ascending: false });
-
-  if (error) {
-    console.error(error);
-    setPlanPickerMsg("Gagal memuat daftar: " + (error.message || "unknown"));
-    return;
-  }
-
-  const body = document.getElementById("planListBody");
-  body.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    body.innerHTML = `<tr><td colspan="3" style="padding:14px; color:#64748b; font-weight:800">Belum ada plan tersimpan.</td></tr>`;
-    setPlanPickerMsg("", true);
-    return;
-  }
-
-  data.forEach((row) => {
-    const updated = row.updated_at || row.created_at;
-    const dt = updated ? new Date(updated).toLocaleString("id-ID") : "-";
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="text-align:left; font-weight:800">${row.plan_name || "(tanpa nama)"}</td>
-      <td>${dt}</td>
-      <td>
-        <button onclick="openPlanById('${row.id}')"
-          style="background:var(--accent);color:#fff;border:none;padding:8px 10px;border-radius:10px;font-weight:800;cursor:pointer">
-          Buka
-        </button>
-        <button onclick="renamePlanPrompt('${row.id}','${(row.plan_name || "").replace(/'/g, "\\'")}')"
-          style="background:#0f172a;color:#fff;border:none;padding:8px 10px;border-radius:10px;font-weight:800;cursor:pointer;margin-left:6px">
-          Rename
-        </button>
-        <button onclick="deletePlanById('${row.id}')"
-          style="background:#ef4444;color:#fff;border:none;padding:8px 10px;border-radius:10px;font-weight:800;cursor:pointer;margin-left:6px">
-          Hapus
-        </button>
-      </td>
-    `;
-    body.appendChild(tr);
-  });
-
-  setPlanPickerMsg(`Total plan: ${data.length}`, true);
-}
-
-function buildPayloadForSave(planName) {
-  return {
+  const payload = {
     config: {
       name: planName,
-      start: document.getElementById("start")?.value || "",
-      match: document.getElementById("match")?.value || "",
-      tk: document.getElementById("tK")?.value || "",
-      tv: document.getElementById("tV")?.value || "",
-      td: document.getElementById("tD")?.value || "",
-      tTek: document.getElementById("tTek")?.value || "",
-      tTak: document.getElementById("tTak")?.value || "",
+      start: document.getElementById('start')?.value || "",
+      match: document.getElementById('match')?.value || "",
+      tk: document.getElementById('tK')?.value || "",
+      tv: document.getElementById('tV')?.value || "",
+      td: document.getElementById('tD')?.value || "",
+      tTek: document.getElementById('tTek')?.value || "",
+      tTak: document.getElementById('tTak')?.value || ""
     },
     meso: mesocycles || [],
     plan: planData || [],
     sessions: weeklySessions || {},
-    meta: { created_from: "web", timestamp: new Date().toISOString() },
+    meta: { created_from: "web", timestamp: new Date().toISOString() }
   };
-}
-
-// Tombol 💾 = SAVE
-// - Kalau currentPlanId ada => UPDATE plan itu
-// - Kalau belum ada => INSERT plan baru (pakai planName di input)
-async function saveAnnualPlan() {
-  try {
-    await requireSessionOrThrow();
-  } catch (e) {
-    alert(e.message || "Anda belum login.");
-    document.getElementById("authOverlay").style.display = "flex";
-    return;
-  }
-
-  const planName = (document.getElementById("planName")?.value || "").trim() || "Unnamed Plan";
-  const payload = buildPayloadForSave(planName);
-
-  // UPDATE existing
-  if (currentPlanId) {
-    const { data, error } = await supabaseClient
-      .from("hirocross_plans")
-      .update({ plan_name: planName, payload })
-      .eq("id", currentPlanId)
-      .select();
-
-    if (error) {
-      console.error(error);
-      alert("Gagal update plan: " + (error.message || "unknown"));
-      return;
-    }
-
-    currentPlanName = planName;
-    alert("Plan berhasil di-update");
-    return;
-  }
-
-  // INSERT new
-  const { data, error } = await supabaseClient
-    .from("hirocross_plans")
-    .insert([{ plan_name: planName, payload }])
-    .select();
-
-  if (error) {
-    console.error(error);
-    alert("Gagal menyimpan plan: " + (error.message || "unknown"));
-    return;
-  }
-
-  const row = data?.[0];
-  currentPlanId = row?.id || null;
-  currentPlanName = planName;
-
-  alert("Plan baru berhasil disimpan");
-}
-
-// SAVE AS (buat plan baru walaupun sedang buka plan lama)
-async function saveAsNewPlan() {
-  try {
-    await requireSessionOrThrow();
-  } catch (e) {
-    alert(e.message || "Anda belum login.");
-    document.getElementById("authOverlay").style.display = "flex";
-    return;
-  }
-
-  const newName = (document.getElementById("newPlanName")?.value || "").trim();
-  if (!newName) {
-    setPlanPickerMsg("Nama plan baru wajib diisi.");
-    return;
-  }
-
-  const payload = buildPayloadForSave(newName);
 
   const { data, error } = await supabaseClient
     .from("hirocross_plans")
-    .insert([{ plan_name: newName, payload }])
-    .select();
+    .insert([{ owner_id: userId, plan_name: planName, payload }])
+    .select()
+    .single();
 
   if (error) {
-    console.error(error);
-    setPlanPickerMsg("Gagal save as: " + (error.message || "unknown"));
+    console.error("GAGAL SIMPAN:", error);
+    alert("Gagal menyimpan: " + (error.message || "unknown"));
     return;
   }
 
-  const row = data?.[0];
-  currentPlanId = row?.id || null;
-  currentPlanName = newName;
-
-  // set UI ke plan baru
-  document.getElementById("planName").value = newName;
-  setPlanPickerMsg("Plan baru dibuat & dibuka.", true);
-
-  refreshPlanList();
+  console.log("BERHASIL SIMPAN:", data);
+  alert("Program berhasil disimpan ke database");
 }
 
-// BUKA plan by id
-async function openPlanById(id) {
+   async function loadAnnualPlans() {
+  let session;
   try {
-    await requireSessionOrThrow();
+    session = await requireSessionOrThrow();
   } catch (e) {
     alert(e.message || "Anda belum login.");
     document.getElementById("authOverlay").style.display = "flex";
     return;
   }
+
+  const userId = session.user.id;
 
   const { data, error } = await supabaseClient
     .from("hirocross_plans")
     .select("*")
-    .eq("id", id)
-    .single();
+    .eq("owner_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1);
 
   if (error) {
+    alert("Gagal mengambil data: " + (error.message || "unknown"));
     console.error(error);
-    setPlanPickerMsg("Gagal membuka plan: " + (error.message || "unknown"));
+    return;
+  }
+  if (!data || data.length === 0) {
+    alert("Belum ada data di database");
     return;
   }
 
-  const row = data;
+  const row = data[0];
   const p = row.payload || {};
 
-  currentPlanId = row.id;
-  currentPlanName = row.plan_name || (p.config?.name || "Unnamed Plan");
-
-  // apply config
   if (p.config) {
-    document.getElementById("planName").value = p.config.name || row.plan_name || "";
-    document.getElementById("start").value = p.config.start || "";
-    document.getElementById("match").value = p.config.match || "";
-    document.getElementById("tK").value = p.config.tk || "";
-    document.getElementById("tV").value = p.config.tv || "";
-    document.getElementById("tD").value = p.config.td || "";
-    if (p.config.tTek) document.getElementById("tTek").value = p.config.tTek;
-    if (p.config.tTak) document.getElementById("tTak").value = p.config.tTak;
+    document.getElementById('planName').value = p.config.name || row.plan_name || "";
+    document.getElementById('start').value = p.config.start || "";
+    document.getElementById('match').value = p.config.match || "";
+    document.getElementById('tK').value = p.config.tk || "";
+    document.getElementById('tV').value = p.config.tv || "";
+    document.getElementById('tD').value = p.config.td || "";
+    if (p.config.tTek) document.getElementById('tTek').value = p.config.tTek;
+    if (p.config.tTak) document.getElementById('tTak').value = p.config.tTak;
   } else {
-    document.getElementById("planName").value = row.plan_name || "";
-  explain
-  // apply data
+    document.getElementById('planName').value = row.plan_name || "";
+  }
+
   mesocycles = p.meso || [];
   planData = p.plan || [];
   weeklySessions = p.sessions || {};
   totalWkLocked = planData.length || 0;
 
-  // render
   renderMesoEditor();
   renderTable();
   populateMonthSelector();
   updateVisuals();
   renderMonthlyCalendar();
 
-  closePlanPicker();
-  alert("Plan berhasil dibuka");
-  showSection("step2");
+  alert("Data berhasil dimuat dari database");
+  showSection('step2');
 }
-
-// RENAME prompt
-async function renamePlanPrompt(id, oldName) {
-  const newName = prompt("Masukkan nama plan baru:", oldName || "");
-  if (!newName) return;
-
-  const trimmed = newName.trim();
-  if (!trimmed) return alert("Nama tidak boleh kosong.");
-
-  const { error } = await supabaseClient
-    .from("hirocross_plans")
-    .update({ plan_name: trimmed })
-    .eq("id", id);
-
-  if (error) {
-    console.error(error);
-    alert("Gagal rename: " + (error.message || "unknown"));
-    return;
-  }
-
-  // jika yg sedang dibuka, update nama di UI juga
-  if (currentPlanId === id) {
-    currentPlanName = trimmed;
-    document.getElementById("planName").value = trimmed;
-  }
-
-  alert("Rename berhasil");
-  refreshPlanList();
-}
-
-// DELETE plan
-async function deletePlanById(id) {
-  const ok = confirm("Yakin hapus plan ini? Aksi tidak bisa dibatalkan.");
-  if (!ok) return;
-
-  const { error } = await supabaseClient.from("hirocross_plans").delete().eq("id", id);
-
-  if (error) {
-    console.error(error);
-    alert("Gagal hapus: " + (error.message || "unknown"));
-    return;
-  }
-
-  // Jika yang terhapus adalah plan yang sedang dibuka
-  if (currentPlanId === id) {
-    currentPlanId = null;
-    currentPlanName = null;
-  }
-
-  alert("Plan berhasil dihapus");
-  refreshPlanList();
-}
-
 
     /*
       =========================

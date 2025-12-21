@@ -1318,11 +1318,11 @@
         meta: { created_from: "web", timestamp: new Date().toISOString() }
       };
 
-      // simpan dengan user_id pemilik (kolom user_id harus ada di tabel)
+      // simpan dengan owner_id pemilik (kolom owner_id harus ada di tabel)
       const { data, error } = await supabaseClient
         .from("hirocross_plans")
         .insert([{
-          user_id: session.user.id,
+          owner_id: session.user.id,
           plan_name: planName,
           payload
         }])
@@ -1351,7 +1351,7 @@
       const { data, error } = await supabaseClient
         .from("hirocross_plans")
         .select("*")
-        .eq("user_id", session.user.id)
+        .eq("owner_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(10);
 
@@ -1410,19 +1410,19 @@
       SUPABASE RLS (WAJIB agar user lain tidak bisa lihat)
       Jalankan di Supabase SQL editor:
 
-      -- 1) Tambah kolom user_id jika belum ada
+      -- 1) Tambah kolom owner_id jika belum ada
       alter table public.hirocross_plans
-      add column if not exists user_id uuid;
+      add column if not exists owner_id uuid;
 
-      -- 2) Set default user_id (opsional, tapi bagus)
+      -- 2) Set default owner_id (opsional, tapi bagus)
       alter table public.hirocross_plans
-      alter column user_id set default auth.uid();
+      alter column owner_id set default auth.uid();
 
-      -- 3) Pastikan user_id tidak null (kalau data lama ada, update dulu)
-      -- update public.hirocross_plans set user_id = auth.uid() where user_id is null;  -- hanya untuk testing admin
+      -- 3) Pastikan owner_id tidak null (kalau data lama ada, update dulu)
+      -- update public.hirocross_plans set owner_id = auth.uid() where owner_id is null;  -- hanya untuk testing admin
       -- Setelah itu:
       alter table public.hirocross_plans
-      alter column user_id set not null;
+      alter column owner_id set not null;
 
       -- 4) Enable RLS
       alter table public.hirocross_plans enable row level security;
@@ -1432,32 +1432,33 @@
       create policy "select_own_plans"
       on public.hirocross_plans
       for select
-      using (user_id = auth.uid());
+      using (owner_id = auth.uid());
 
       -- 6) Policy INSERT
       drop policy if exists "insert_own_plans" on public.hirocross_plans;
       create policy "insert_own_plans"
       on public.hirocross_plans
       for insert
-      with check (user_id = auth.uid());
+      with check (owner_id = auth.uid());
 
       -- 7) Policy UPDATE
       drop policy if exists "update_own_plans" on public.hirocross_plans;
       create policy "update_own_plans"
       on public.hirocross_plans
       for update
-      using (user_id = auth.uid())
-      with check (user_id = auth.uid());
+      using (owner_id = auth.uid())
+      with check (owner_id = auth.uid());
 
       -- 8) Policy DELETE (opsional)
       drop policy if exists "delete_own_plans" on public.hirocross_plans;
       create policy "delete_own_plans"
       on public.hirocross_plans
       for delete
-      using (user_id = auth.uid());
+      using (owner_id = auth.uid());
       =========================
     */
   </script>
 
 </body>
 </html>
+

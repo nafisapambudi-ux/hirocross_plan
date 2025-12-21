@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HiroCross_Plan</title>
-<!-- FAVICON (ikon tab browser) -->
-<link rel="icon" href="./Hirocross-logo.png" type="image/png">
-<link rel="apple-touch-icon" href="./Hirocross-logo.png">
-<meta name="theme-color" content="#0f172a">
+
+  <!-- FAVICON (ikon tab browser) -->
+  <link rel="icon" href="./Hirocross-logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="./Hirocross-logo.png">
+  <meta name="theme-color" content="#0f172a">
+
   <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -24,11 +26,11 @@
 
   <style>
     .login-logo{
-  display:block;
-  margin: 0 auto 14px;
-  width: 80px;
-  height: auto;
-}
+      display:block;
+      margin: 0 auto 14px;
+      width: 80px;
+      height: auto;
+    }
     :root {
       --primary: #0f172a;
       --accent: #0827ef;
@@ -236,6 +238,34 @@
     }
     .auth-msg{ margin-top:12px; font-size:.8rem; font-weight:700; color:#ef4444; min-height:18px; }
 
+    .auth-links{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:.78rem;
+      font-weight:800;
+    }
+    .auth-links a{
+      color: var(--accent);
+      text-decoration:none;
+      cursor:pointer;
+    }
+    .auth-links a:hover{ text-decoration:underline; }
+
+    /* Reset modal (di dalam overlay) */
+    #resetBox{
+      display:none;
+      margin-top:14px;
+      padding:14px;
+      border:1px solid #e2e8f0;
+      border-radius:12px;
+      background:#f8fafc;
+      text-align:left;
+    }
+    #resetBox h3{ font-size:.95rem; margin-bottom:10px; }
+    #resetBox input{ margin-bottom:10px; }
+
     .topbar-user{
       display:flex;
       align-items:center;
@@ -260,16 +290,14 @@
 <body>
 
   <!-- =========================
-       AUTH OVERLAY (DAFTAR / LOGIN SAJA)
+       AUTH OVERLAY (DAFTAR / LOGIN + LUPA PASSWORD)
        ========================= -->
   <div id="authOverlay">
     <div class="auth-card">
-      <!-- LOGO HIROCROSS -->
-  <img src="./Hirocross-logo.png"
-       alt="HiroCross Logo"
-       class="login-logo">
+      <img src="./Hirocross-logo.png" alt="HiroCross Logo" class="login-logo">
       <h2>HIROCROSS PLAN</h2>
       <p>Daftar atau login untuk akses Setup & Annual Plan</p>
+
       <input id="loginEmail" type="email" placeholder="Email" autocomplete="username" />
       <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
 
@@ -278,23 +306,34 @@
         <button class="btn-success" onclick="doSignUp()">DAFTAR</button>
       </div>
 
+      <div class="auth-links">
+        <a onclick="sendResetEmail()">Lupa password?</a>
+        <a onclick="fillDemoEmail()">Isi email</a>
+      </div>
+
+      <!-- Reset password box (muncul otomatis kalau user buka link recovery dari email) -->
+      <div id="resetBox">
+        <h3>Reset Password</h3>
+        <input id="newPass1" type="password" placeholder="Password baru (min 6)" autocomplete="new-password" />
+        <input id="newPass2" type="password" placeholder="Ulangi password baru" autocomplete="new-password" />
+        <button class="btn-primary" onclick="submitNewPassword()">SIMPAN PASSWORD BARU</button>
+      </div>
+
       <div id="authMsg" class="auth-msg"></div>
     </div>
   </div>
 
   <!-- =========================
-       APP SECTION (SELALU ADA, TAPI TERKUNCI OLEH OVERLAY)
+       APP SECTION
        ========================= -->
   <section id="appSection">
 
     <header>
       <div class="brand">
-        <!-- Pastikan file logo ada di repo yang sama dan namanya SAMA PERSIS -->
         <img src="./Hirocross-logo.png" alt="HIROCROSS Logo" class="brand-logo">
         <h1 class="brand-title">HIRO CROSS</h1>
       </div>
 
-      <!-- NAV TETAP ADA UNTUK FITUR APP ANDA -->
       <nav>
         <button id="btn1" class="active" onclick="showSection('step1')">SETUP</button>
         <button id="btn2" onclick="showSection('step2')">ANNUAL PLAN</button>
@@ -302,7 +341,6 @@
         <button id="btn4" onclick="initMonitoring()">MONITORING</button>
       </nav>
 
-      <!-- HANYA: LOGOUT -->
       <div class="topbar-user no-print">
         <span id="userEmailLabel">-</span>
         <button onclick="doLogout()">LOGOUT</button>
@@ -510,13 +548,25 @@
 
   <script>
     // =========================
-    // AUTH: hanya DAFTAR / LOGIN / LOGOUT
+    // AUTH: DAFTAR / LOGIN / LOGOUT + LUPA PASSWORD
     // =========================
 
     function setAuthMsg(text, isOk=false){
       const el = document.getElementById("authMsg");
       el.style.color = isOk ? "#10b981" : "#ef4444";
       el.textContent = text || "";
+    }
+
+    function fillDemoEmail(){
+      const email = document.getElementById("loginEmail");
+      if(!email.value) email.value = "emailanda@contoh.com";
+      setAuthMsg("Silakan ganti dengan email Anda.", true);
+    }
+
+    function getSiteUrlForRedirect(){
+      // Netlify biasanya pakai domain final (bukan localhost).
+      // Jika Anda deploy di Netlify, ini otomatis pakai origin saat ini.
+      return window.location.origin + window.location.pathname;
     }
 
     async function doLogin(){
@@ -532,6 +582,7 @@
       document.getElementById("userEmailLabel").textContent = userEmail;
 
       document.getElementById("authOverlay").style.display = "none";
+      document.getElementById("resetBox").style.display = "none";
       setAuthMsg("");
     }
 
@@ -542,15 +593,20 @@
       if(password.length < 6){ setAuthMsg("Password minimal 6 karakter."); return; }
       setAuthMsg("Membuat akun...", true);
 
-      const { error } = await supabaseClient.auth.signUp({ email, password });
+      const { error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          // Jika project Anda memakai email confirmation, link verifikasi akan kembali ke URL ini.
+          emailRedirectTo: getSiteUrlForRedirect()
+        }
+      });
 
       if(error){
         setAuthMsg("Daftar gagal: " + error.message);
         return;
       }
 
-      // Banyak project Supabase butuh email confirmation.
-      // Jika confirmation ON, user harus cek email dulu baru bisa login.
       setAuthMsg("Akun dibuat. Jika diminta verifikasi email, cek inbox lalu login.", true);
     }
 
@@ -558,11 +614,95 @@
       await supabaseClient.auth.signOut();
       document.getElementById("authOverlay").style.display = "flex";
       document.getElementById("userEmailLabel").textContent = "-";
+      document.getElementById("resetBox").style.display = "none";
       setAuthMsg("");
+    }
+
+    // ---- Forgot password: kirim email reset ----
+    async function sendResetEmail(){
+      const email = document.getElementById("loginEmail").value.trim();
+      if(!email){
+        setAuthMsg("Isi email dulu, lalu klik Lupa password.");
+        return;
+      }
+      setAuthMsg("Mengirim link reset ke email...", true);
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: getSiteUrlForRedirect()
+      });
+
+      if(error){
+        setAuthMsg("Gagal kirim email reset: " + error.message);
+        return;
+      }
+
+      setAuthMsg("Link reset terkirim. Cek inbox/spam email Anda.", true);
+    }
+
+    // ---- Recovery handler: jika user klik link dari email, munculkan form reset ----
+    function parseHashParams(){
+      const h = window.location.hash || "";
+      const raw = h.startsWith("#") ? h.slice(1) : h;
+      const params = new URLSearchParams(raw);
+      const out = {};
+      for(const [k,v] of params.entries()) out[k] = v;
+      return out;
+    }
+
+    async function handleRecoveryFromUrl(){
+      // Supabase reset link biasanya menaruh token di URL hash.
+      // contoh: #access_token=...&refresh_token=...&type=recovery
+      const p = parseHashParams();
+      if(p.type !== "recovery") return;
+
+      // Pastikan overlay tampil dan box reset muncul
+      document.getElementById("authOverlay").style.display = "flex";
+      document.getElementById("resetBox").style.display = "block";
+      setAuthMsg("Masukkan password baru Anda.", true);
+
+      // Set session dari token recovery (agar updateUser bisa jalan)
+      // Jika refresh_token tidak ada (tergantung setting), tetap coba dengan access_token saja.
+      try{
+        const access_token = p.access_token || null;
+        const refresh_token = p.refresh_token || null;
+
+        if(access_token){
+          await supabaseClient.auth.setSession({ access_token, refresh_token });
+        }
+      } catch(e){
+        // tetap tampilkan box reset, user bisa coba lagi
+        console.warn("setSession from recovery token failed:", e);
+      }
+    }
+
+    async function submitNewPassword(){
+      const a = (document.getElementById("newPass1").value || "").trim();
+      const b = (document.getElementById("newPass2").value || "").trim();
+      if(a.length < 6){ setAuthMsg("Password baru minimal 6 karakter."); return; }
+      if(a !== b){ setAuthMsg("Password baru tidak sama. Ulangi lagi."); return; }
+
+      setAuthMsg("Menyimpan password baru...", true);
+
+      const { error } = await supabaseClient.auth.updateUser({ password: a });
+      if(error){
+        setAuthMsg("Gagal update password: " + error.message);
+        return;
+      }
+
+      setAuthMsg("Password berhasil diubah. Silakan login.", true);
+
+      // Bersihkan hash token supaya tidak memunculkan reset box lagi
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+      document.getElementById("resetBox").style.display = "none";
+
+      // (Opsional) logout dulu agar user login normal
+      try{ await supabaseClient.auth.signOut(); } catch(e){}
     }
 
     // Auto-check session saat halaman dibuka + saat state berubah
     async function bootAuth(){
+      await handleRecoveryFromUrl();
+
       const { data } = await supabaseClient.auth.getSession();
       const sess = data?.session;
 
@@ -1140,7 +1280,7 @@
     }
 
     // =========================
-    // SUPABASE: Save / Load (owner-only via RLS)
+    // SUPABASE: Save / Load (owner-only)
     // =========================
     async function requireSessionOrThrow(){
       const { data, error } = await supabaseClient.auth.getSession();
@@ -1150,8 +1290,9 @@
     }
 
     async function saveAnnualPlan() {
+      let session;
       try{
-        await requireSessionOrThrow();
+        session = await requireSessionOrThrow();
       } catch(e){
         alert(e.message || "Anda belum login.");
         document.getElementById("authOverlay").style.display = "flex";
@@ -1177,9 +1318,14 @@
         meta: { created_from: "web", timestamp: new Date().toISOString() }
       };
 
+      // simpan dengan user_id pemilik (kolom user_id harus ada di tabel)
       const { data, error } = await supabaseClient
         .from("hirocross_plans")
-        .insert([{ plan_name: planName, payload }])
+        .insert([{
+          user_id: session.user.id,
+          plan_name: planName,
+          payload
+        }])
         .select();
 
       if (error) {
@@ -1192,19 +1338,22 @@
     }
 
     async function loadAnnualPlans() {
+      let session;
       try{
-        await requireSessionOrThrow();
+        session = await requireSessionOrThrow();
       } catch(e){
         alert(e.message || "Anda belum login.");
         document.getElementById("authOverlay").style.display = "flex";
         return;
       }
 
+      // ambil plan milik user ini saja
       const { data, error } = await supabaseClient
         .from("hirocross_plans")
         .select("*")
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
-        .limit(1);
+        .limit(10);
 
       if (error) {
         alert("Gagal mengambil data: " + (error.message || "unknown"));
@@ -1212,11 +1361,20 @@
         return;
       }
       if (!data || data.length === 0) {
-        alert("Belum ada data di database");
+        alert("Belum ada data plan untuk akun ini.");
         return;
       }
 
-      const row = data[0];
+      // jika banyak plan, pilih via prompt sederhana
+      let pick = 0;
+      if (data.length > 1) {
+        const list = data.map((r, i) => `${i+1}. ${r.plan_name} (${new Date(r.created_at).toLocaleString('id-ID')})`).join("\n");
+        const ans = prompt("Pilih plan yang mau dibuka:\n\n" + list + "\n\nKetik angka 1-" + data.length, "1");
+        const idx = Math.max(1, Math.min(data.length, parseInt(ans || "1", 10))) - 1;
+        pick = idx;
+      }
+
+      const row = data[pick];
       const p = row.payload || {};
 
       if (p.config) {
@@ -1246,15 +1404,60 @@
       alert("Data berhasil dimuat dari database");
       showSection('step2');
     }
+
+    /*
+      =========================
+      SUPABASE RLS (WAJIB agar user lain tidak bisa lihat)
+      Jalankan di Supabase SQL editor:
+
+      -- 1) Tambah kolom user_id jika belum ada
+      alter table public.hirocross_plans
+      add column if not exists user_id uuid;
+
+      -- 2) Set default user_id (opsional, tapi bagus)
+      alter table public.hirocross_plans
+      alter column user_id set default auth.uid();
+
+      -- 3) Pastikan user_id tidak null (kalau data lama ada, update dulu)
+      -- update public.hirocross_plans set user_id = auth.uid() where user_id is null;  -- hanya untuk testing admin
+      -- Setelah itu:
+      alter table public.hirocross_plans
+      alter column user_id set not null;
+
+      -- 4) Enable RLS
+      alter table public.hirocross_plans enable row level security;
+
+      -- 5) Policy SELECT
+      drop policy if exists "select_own_plans" on public.hirocross_plans;
+      create policy "select_own_plans"
+      on public.hirocross_plans
+      for select
+      using (user_id = auth.uid());
+
+      -- 6) Policy INSERT
+      drop policy if exists "insert_own_plans" on public.hirocross_plans;
+      create policy "insert_own_plans"
+      on public.hirocross_plans
+      for insert
+      with check (user_id = auth.uid());
+
+      -- 7) Policy UPDATE
+      drop policy if exists "update_own_plans" on public.hirocross_plans;
+      create policy "update_own_plans"
+      on public.hirocross_plans
+      for update
+      using (user_id = auth.uid())
+      with check (user_id = auth.uid());
+
+      -- 8) Policy DELETE (opsional)
+      drop policy if exists "delete_own_plans" on public.hirocross_plans;
+      create policy "delete_own_plans"
+      on public.hirocross_plans
+      for delete
+      using (user_id = auth.uid());
+      =========================
+    */
   </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-

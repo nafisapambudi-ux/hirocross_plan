@@ -177,26 +177,26 @@
     .brand-logo{ width:42px; height:42px; object-fit:contain; }
     .brand-title{ color:#ffffff; font-weight:800; letter-spacing:1px; text-transform:uppercase; margin:0; }
 
-    /* Login UI */
-    #loginSection{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#0f172a;
+    /* Login UI (Overlay Gate) */
+    #authOverlay{
+      position:fixed; inset:0;
+      background:linear-gradient(135deg,#020617,#020617ee);
+      display:flex; align-items:center; justify-content:center;
+      z-index:9999;
       padding:20px;
     }
-    .login-card{
+    .auth-card{
       background:#fff;
       width:100%;
       max-width:380px;
       padding:26px;
       border-radius:16px;
       box-shadow:0 20px 50px rgba(0,0,0,.35);
+      text-align:center;
     }
-    .login-card h2{ text-align:center; margin-bottom:6px; }
-    .login-card p{ text-align:center; font-size:.85rem; color:#64748b; margin-bottom:18px; }
-    .login-card input{
+    .auth-card h2{ margin-bottom:6px; font-weight:800; }
+    .auth-card p{ font-size:.85rem; color:#64748b; margin-bottom:18px; }
+    .auth-card input{
       width:100%;
       padding:12px;
       border-radius:10px;
@@ -204,7 +204,8 @@
       margin-bottom:12px;
       background:#fff;
     }
-    .login-card button{
+    .auth-actions{ display:flex; flex-direction:column; gap:10px; }
+    .btn-primary{
       width:100%;
       padding:12px;
       border:none;
@@ -214,7 +215,18 @@
       font-weight:800;
       cursor:pointer;
     }
-    .login-msg{ margin-top:12px; font-size:.8rem; font-weight:700; color:#ef4444; text-align:center; min-height:18px; }
+    .btn-success{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:var(--success);
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .auth-msg{ margin-top:12px; font-size:.8rem; font-weight:700; color:#ef4444; min-height:18px; }
+
     .topbar-user{
       display:flex;
       align-items:center;
@@ -224,10 +236,10 @@
       font-weight:700;
     }
     .topbar-user button{
-      background:transparent;
-      border:1px solid rgba(255,255,255,.2);
+      border:none;
+      background:#ef4444;
       color:#fff;
-      padding:8px 10px;
+      padding:9px 12px;
       border-radius:10px;
       cursor:pointer;
       font-weight:800;
@@ -239,23 +251,28 @@
 <body>
 
   <!-- =========================
-       LOGIN SECTION (MUNCUL PERTAMA)
+       AUTH OVERLAY (DAFTAR / LOGIN SAJA)
        ========================= -->
-  <section id="loginSection">
-    <div class="login-card">
+  <div id="authOverlay">
+    <div class="auth-card">
       <h2>HIROCROSS PLAN</h2>
-      <p>Login untuk akses Setup & Annual Plan</p>
+      <p>Daftar atau login untuk akses Setup & Annual Plan</p>
       <input id="loginEmail" type="email" placeholder="Email" autocomplete="username" />
       <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
-      <button onclick="doLogin()">LOGIN</button>
-      <div id="loginMsg" class="login-msg"></div>
+
+      <div class="auth-actions">
+        <button class="btn-primary" onclick="doLogin()">LOGIN</button>
+        <button class="btn-success" onclick="doSignUp()">DAFTAR</button>
+      </div>
+
+      <div id="authMsg" class="auth-msg"></div>
     </div>
-  </section>
+  </div>
 
   <!-- =========================
-       APP SECTION (SEMBUNYI SAMPAI LOGIN)
+       APP SECTION (SELALU ADA, TAPI TERKUNCI OLEH OVERLAY)
        ========================= -->
-  <section id="appSection" style="display:none;">
+  <section id="appSection">
 
     <header>
       <div class="brand">
@@ -264,6 +281,7 @@
         <h1 class="brand-title">HIRO CROSS</h1>
       </div>
 
+      <!-- NAV TETAP ADA UNTUK FITUR APP ANDA -->
       <nav>
         <button id="btn1" class="active" onclick="showSection('step1')">SETUP</button>
         <button id="btn2" onclick="showSection('step2')">ANNUAL PLAN</button>
@@ -271,6 +289,7 @@
         <button id="btn4" onclick="initMonitoring()">MONITORING</button>
       </nav>
 
+      <!-- HANYA: LOGOUT -->
       <div class="topbar-user no-print">
         <span id="userEmailLabel">-</span>
         <button onclick="doLogout()">LOGOUT</button>
@@ -474,47 +493,83 @@
       </div>
     </div>
 
-  </section> <!-- end appSection -->
+  </section>
 
   <script>
     // =========================
-    // AUTH: login gate
+    // AUTH: hanya DAFTAR / LOGIN / LOGOUT
     // =========================
+
+    function setAuthMsg(text, isOk=false){
+      const el = document.getElementById("authMsg");
+      el.style.color = isOk ? "#10b981" : "#ef4444";
+      el.textContent = text || "";
+    }
+
     async function doLogin(){
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value;
-      const msg = document.getElementById("loginMsg");
-      if(!email || !password){ msg.textContent = "Email dan password wajib diisi."; return; }
-      msg.textContent = "Memproses...";
+      if(!email || !password){ setAuthMsg("Email dan password wajib diisi."); return; }
+      setAuthMsg("Memproses...", true);
 
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if(error){ msg.textContent = error.message; return; }
+      if(error){ setAuthMsg("Login gagal: " + error.message); return; }
 
       const userEmail = data?.user?.email || email;
       document.getElementById("userEmailLabel").textContent = userEmail;
 
-      document.getElementById("loginSection").style.display = "none";
-      document.getElementById("appSection").style.display = "block";
-      msg.textContent = "";
+      document.getElementById("authOverlay").style.display = "none";
+      setAuthMsg("");
+    }
+
+    async function doSignUp(){
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      if(!email || !password){ setAuthMsg("Email dan password wajib diisi."); return; }
+      if(password.length < 6){ setAuthMsg("Password minimal 6 karakter."); return; }
+      setAuthMsg("Membuat akun...", true);
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+
+      if(error){
+        setAuthMsg("Daftar gagal: " + error.message);
+        return;
+      }
+
+      // Banyak project Supabase butuh email confirmation.
+      // Jika confirmation ON, user harus cek email dulu baru bisa login.
+      setAuthMsg("Akun dibuat. Jika diminta verifikasi email, cek inbox lalu login.", true);
     }
 
     async function doLogout(){
       await supabaseClient.auth.signOut();
-      document.getElementById("appSection").style.display = "none";
-      document.getElementById("loginSection").style.display = "flex";
-      document.getElementById("loginMsg").textContent = "";
+      document.getElementById("authOverlay").style.display = "flex";
+      document.getElementById("userEmailLabel").textContent = "-";
+      setAuthMsg("");
     }
 
-    // Auto-check session saat halaman dibuka
-    supabaseClient.auth.getSession().then(({ data }) => {
+    // Auto-check session saat halaman dibuka + saat state berubah
+    async function bootAuth(){
+      const { data } = await supabaseClient.auth.getSession();
       const sess = data?.session;
+
       if(sess){
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("appSection").style.display = "block";
+        document.getElementById("authOverlay").style.display = "none";
         document.getElementById("userEmailLabel").textContent = sess.user.email || "-";
       } else {
-        document.getElementById("loginSection").style.display = "flex";
-        document.getElementById("appSection").style.display = "none";
+        document.getElementById("authOverlay").style.display = "flex";
+        document.getElementById("userEmailLabel").textContent = "-";
+      }
+    }
+    bootAuth();
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      if(session){
+        document.getElementById("authOverlay").style.display = "none";
+        document.getElementById("userEmailLabel").textContent = session.user.email || "-";
+      } else {
+        document.getElementById("authOverlay").style.display = "flex";
+        document.getElementById("userEmailLabel").textContent = "-";
       }
     });
 
@@ -537,7 +592,6 @@
       const btnId = btnMap[id];
       if (btnId && document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
 
-      // FIX: update title ketika buka step2
       if (id === 'step2') {
         const name = (document.getElementById('planName')?.value || '').trim();
         document.getElementById('displayTitle').innerText = name ? name : 'ANNUAL PLAN';
@@ -1073,9 +1127,24 @@
     }
 
     // =========================
-    // SUPABASE: Save / Load
+    // SUPABASE: Save / Load (owner-only via RLS)
     // =========================
+    async function requireSessionOrThrow(){
+      const { data, error } = await supabaseClient.auth.getSession();
+      if(error) throw error;
+      if(!data?.session) throw new Error("Anda belum login.");
+      return data.session;
+    }
+
     async function saveAnnualPlan() {
+      try{
+        await requireSessionOrThrow();
+      } catch(e){
+        alert(e.message || "Anda belum login.");
+        document.getElementById("authOverlay").style.display = "flex";
+        return;
+      }
+
       const planName = document.getElementById("planName")?.value?.trim() || "Unnamed Plan";
 
       const payload = {
@@ -1110,6 +1179,14 @@
     }
 
     async function loadAnnualPlans() {
+      try{
+        await requireSessionOrThrow();
+      } catch(e){
+        alert(e.message || "Anda belum login.");
+        document.getElementById("authOverlay").style.display = "flex";
+        return;
+      }
+
       const { data, error } = await supabaseClient
         .from("hirocross_plans")
         .select("*")

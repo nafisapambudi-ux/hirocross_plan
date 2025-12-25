@@ -341,6 +341,7 @@
         <button id="btn2" type="button">ANNUAL PLAN</button>
         <button id="btn3" type="button">BULANAN</button>
         <button id="btn4" type="button">MONITORING</button>
+        <button id="btn5" type="button">TES &amp; PENGUKURAN</button>
       </nav>
 
       <div class="topbar-user no-print">
@@ -494,6 +495,162 @@
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px">
         <div class="card"><h3>Distribusi Intensitas (Plan)</h3><div style="height:300px"><canvas id="monitorPieChart"></canvas></div></div>
         <div class="card"><h3>Tingkat Kehadiran Per Bulan</h3><div style="height:300px"><canvas id="monitorBarChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- ===== TES & PENGUKURAN (STEP 5) ===== -->
+    <section id="step5" class="content-section">
+      <h2 style="margin-bottom:20px">Tes & Pengukuran Fisik</h2>
+
+      <div class="card">
+        <h3 style="margin-bottom:12px">Input Tes</h3>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+          <div>
+            <label>Nama Atlet</label>
+            <input id="testAthlete" type="text" placeholder="Contoh: Atlet A">
+          </div>
+
+          <div>
+            <label>Tanggal Tes</label>
+            <input id="testDate" type="date">
+          </div>
+
+          <div>
+            <label>Usia (tahun)</label>
+            <input id="testAge" type="number" min="5" max="80" placeholder="Contoh: 20">
+          </div>
+
+          <div>
+            <label>Jenis Kelamin</label>
+            <select id="testSex">
+              <option value="M">Laki-laki</option>
+              <option value="F">Perempuan</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Berat Badan (kg)</label>
+            <input id="testBW" type="number" step="0.1" placeholder="Contoh: 70.5">
+          </div>
+
+          <div>
+            <label>Kategori Tes</label>
+            <select id="testCategory"></select>
+          </div>
+
+          <div>
+            <label>Item Tes</label>
+            <select id="testItem"></select>
+          </div>
+
+          <div id="testVariantWrap" style="display:none;">
+            <label>Variasi (1RM)</label>
+            <select id="testVariant">
+              <option value="Back Squat">Back Squat</option>
+              <option value="Bench Press">Bench Press</option>
+              <option value="Deadlift">Deadlift</option>
+              <option value="Front Squat">Front Squat</option>
+              <option value="Overhead Press">Overhead Press</option>
+            </select>
+          </div>
+
+          <div id="testMethodWrap" style="display:none;">
+            <label>Metode 1RM</label>
+            <select id="testMethod">
+              <option value="actual">Actual 1RM</option>
+              <option value="estimated">Estimated (Epley)</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Nilai Utama</label>
+            <input id="testValue" type="number" step="0.1" placeholder="Contoh: 120">
+          </div>
+
+          <div>
+            <label>Satuan</label>
+            <select id="testUnit">
+              <option value="kg">kg</option>
+              <option value="cm">cm</option>
+              <option value="m">m</option>
+              <option value="s">detik</option>
+              <option value="reps">reps</option>
+              <option value="ml/kg/min">ml/kg/min</option>
+              <option value="%">%</option>
+              <option value="W">W</option>
+            </select>
+          </div>
+
+          <div id="testRepsWrap" style="display:none;">
+            <label>Repetisi (untuk estimasi)</label>
+            <input id="testReps" type="number" min="1" max="15" placeholder="Contoh: 5">
+          </div>
+
+          <div>
+            <label>Skor (1–5)</label>
+            <select id="testScore">
+              <option value="1">1 - Sangat Kurang</option>
+              <option value="2">2 - Kurang</option>
+              <option value="3" selected>3 - Cukup</option>
+              <option value="4">4 - Baik</option>
+              <option value="5">5 - Sangat Baik</option>
+            </select>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label>Catatan</label>
+            <input id="testNotes" type="text" placeholder="Opsional: kondisi tes, alat, protokol, dll.">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button id="btnAddTest" type="button" class="btn-primary" style="flex:2;">SIMPAN HASIL TES</button>
+          <button id="btnClearTests" type="button" style="flex:1; background:#64748b; color:#fff; border:none; border-radius:10px; font-weight:800; cursor:pointer;">
+            RESET FORM
+          </button>
+        </div>
+
+        <div id="testComputedBox" class="index-box" style="margin-top:12px; text-align:left; display:none;"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;">
+          <div>
+            <h3 style="margin-bottom:6px;">Radar Profil (Skala 1–5)</h3>
+            <p style="font-size: 0.7rem; color: #64748b;">
+              Skor otomatis dari norma usia+jenis kelamin. Radar menampilkan skor terbaru per domain.
+            </p>
+          </div>
+          <div style="min-width:240px;">
+            <label>Pilih Atlet</label>
+            <select id="radarAthleteFilter"></select>
+          </div>
+        </div>
+
+        <div style="height:360px"><canvas id="testRadarChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:12px;">Riwayat Tes</h3>
+        <div class="table-scroll">
+          <table style="min-width:1100px;">
+            <thead>
+              <tr>
+                <th style="width:120px;">Tanggal</th>
+                <th style="width:160px;">Atlet</th>
+                <th style="width:120px;">Kategori</th>
+                <th style="width:180px;">Item</th>
+                <th style="width:140px;">Varian</th>
+                <th style="width:140px;">Nilai</th>
+                <th style="width:120px;">Skor</th>
+                <th>Catatan</th>
+                <th style="width:60px;">Hapus</th>
+              </tr>
+            </thead>
+            <tbody id="testsBody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -757,6 +914,10 @@
     let mesocycles = []; let planData = []; let weeklySessions = {};
     let totalWkLocked = 0;
 
+    // ===== TES DATA =====
+    let testsData = [];
+    let testRadar;
+
     const phColors = { "Umum": "#add8e699", "Khusus": "#90ee9099", "Pra-Komp": "#ffa50099", "Kompetisi": "#ef444499" };
     const intColors = { "High": "#fee2e2", "Med": "#fef9c3", "Low": "#dcfce7", "Rest": "#f1f5f9" };
 
@@ -765,13 +926,23 @@
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(id).classList.add('active');
 
-      const btnMap = { step1: "btn1", step2: "btn2", step3: "btn3", step4: "btn4" };
+      const btnMap = { step1: "btn1", step2: "btn2", step3: "btn3", step4: "btn4", step5: "btn5" };
       const btnId = btnMap[id];
       if (btnId && document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
 
       if (id === 'step2') {
         const name = (document.getElementById('planName')?.value || '').trim();
         document.getElementById('displayTitle').innerText = name ? name : 'ANNUAL PLAN';
+      }
+
+      if(id === "step5"){
+        if(!window.__testsInitDone){
+          initTestsUI();
+          window.__testsInitDone = true;
+        } else {
+          renderTestsTable();
+          updateTestRadar();
+        }
       }
     }
 
@@ -1275,8 +1446,552 @@
         if (compChart) compChart.resize();
         if (monitorPie) monitorPie.resize();
         if (monitorBar) monitorBar.resize();
+        if (testRadar) testRadar.resize();
       } catch (e) {}
       setTimeout(() => window.print(), 300);
+    }
+
+    // =========================
+    // TES & PENGUKURAN
+    // =========================
+    const TEST_CATALOG = {
+      "Strength": [
+        { key: "1RM", label: "1RM (pilih Squat/Bench/Deadlift)", needsVariant: true, needsMethod: true, unit: "kg" },
+        { key: "Pull-up", label: "Pull-up Max Reps", unit: "reps" },
+        { key: "IMTP", label: "Isometric Mid-Thigh Pull (Peak Force)", unit: "kg" }
+      ],
+      "Power": [
+        { key: "CMJ", label: "Countermovement Jump (CMJ)", unit: "cm" },
+        { key: "SJ", label: "Squat Jump (SJ)", unit: "cm" },
+        { key: "BroadJump", label: "Standing Broad Jump", unit: "m" },
+        { key: "MBThrow", label: "Medicine Ball Throw (Chest/Overhead)", unit: "m" }
+      ],
+      "Speed": [
+        { key: "Sprint10", label: "Sprint 10 m", unit: "s" },
+        { key: "Sprint20", label: "Sprint 20 m", unit: "s" },
+        { key: "Sprint30", label: "Sprint 30 m", unit: "s" }
+      ],
+      "Agility/COD": [
+        { key: "TTest", label: "T-Test", unit: "s" },
+        { key: "Illinois", label: "Illinois Agility", unit: "s" },
+        { key: "505", label: "505 COD", unit: "s" }
+      ],
+      "Endurance": [
+        { key: "Cooper", label: "Cooper 12-min (VO₂max estimate)", unit: "ml/kg/min" },
+        { key: "Beep", label: "Beep Test / MSFT (Level)", unit: "reps" },
+        { key: "FTP", label: "Cycling FTP", unit: "W" }
+      ],
+      "Mobility/Flexibility": [
+        { key: "SitReach", label: "Sit & Reach", unit: "cm" },
+        { key: "AnkleDF", label: "Ankle Dorsiflexion", unit: "cm" },
+        { key: "ShoulderMob", label: "Shoulder Mobility", unit: "cm" }
+      ],
+      "Balance/Stability": [
+        { key: "YBalance", label: "Y-Balance (Composite)", unit: "%" },
+        { key: "SingleLeg", label: "Single-Leg Stance (time)", unit: "s" }
+      ],
+      "Body Composition": [
+        { key: "Weight", label: "Body Weight", unit: "kg" },
+        { key: "BodyFat", label: "Body Fat %", unit: "%" },
+        { key: "FFM", label: "Fat Free Mass", unit: "kg" }
+      ]
+    };
+
+    // ===== NORMA (Skor 1–5) berbasis usia & jenis kelamin =====
+    function getAgeBand(age){
+      const a = parseInt(age);
+      if(!a || a < 13) return "U12";
+      if(a <= 15) return "13-15";
+      if(a <= 19) return "16-19";
+      if(a <= 29) return "20-29";
+      if(a <= 39) return "30-39";
+      if(a <= 49) return "40-49";
+      return "50+";
+    }
+
+    function scoreByThresholds(value, thresholds, mode="higherBetter"){
+      const v = parseFloat(value);
+      if(!isFinite(v)) return null;
+      const t = thresholds;
+
+      if(mode === "lowerBetter"){
+        if(v <= t[5]) return 5;
+        if(v <= t[4]) return 4;
+        if(v <= t[3]) return 3;
+        if(v <= t[2]) return 2;
+        return 1;
+      } else {
+        if(v >= t[5]) return 5;
+        if(v >= t[4]) return 4;
+        if(v >= t[3]) return 3;
+        if(v >= t[2]) return 2;
+        return 1;
+      }
+    }
+
+    // Norma umum (bisa Anda modifikasi sesuai populasi atlet Anda)
+    const NORMS = {
+      M: {
+        REL_1RM_SQUAT: {
+          "13-15": {2:0.9, 3:1.1, 4:1.3, 5:1.5},
+          "16-19": {2:1.0, 3:1.25,4:1.5, 5:1.75},
+          "20-29": {2:1.0, 3:1.3, 4:1.6, 5:1.9},
+          "30-39": {2:0.95,3:1.2, 4:1.45,5:1.75},
+          "40-49": {2:0.85,3:1.1, 4:1.35,5:1.6},
+          "50+":   {2:0.75,3:1.0, 4:1.2, 5:1.45},
+          "U12":   {2:0.0, 3:0.0, 4:0.0, 5:0.0}
+        },
+        REL_1RM_BENCH: {
+          "13-15": {2:0.55,3:0.70,4:0.85,5:1.00},
+          "16-19": {2:0.65,3:0.85,4:1.00,5:1.15},
+          "20-29": {2:0.70,3:0.90,4:1.10,5:1.25},
+          "30-39": {2:0.65,3:0.85,4:1.05,5:1.20},
+          "40-49": {2:0.60,3:0.80,4:0.95,5:1.10},
+          "50+":   {2:0.50,3:0.70,4:0.85,5:1.00},
+          "U12":   {2:0.0, 3:0.0, 4:0.0, 5:0.0}
+        },
+        REL_1RM_DEADLIFT: {
+          "13-15": {2:1.0, 3:1.2, 4:1.4, 5:1.6},
+          "16-19": {2:1.15,3:1.4, 4:1.65,5:1.9},
+          "20-29": {2:1.2, 3:1.5, 4:1.8, 5:2.1},
+          "30-39": {2:1.1, 3:1.4, 4:1.7, 5:2.0},
+          "40-49": {2:1.0, 3:1.25,4:1.55,5:1.85},
+          "50+":   {2:0.9, 3:1.15,4:1.4, 5:1.7},
+          "U12":   {2:0.0, 3:0.0, 4:0.0, 5:0.0}
+        },
+        CMJ: {
+          "13-15": {2:28, 3:34, 4:40, 5:46},
+          "16-19": {2:32, 3:38, 4:45, 5:52},
+          "20-29": {2:33, 3:40, 4:48, 5:55},
+          "30-39": {2:30, 3:37, 4:44, 5:51},
+          "40-49": {2:26, 3:32, 4:39, 5:45},
+          "50+":   {2:22, 3:28, 4:34, 5:40},
+          "U12":   {2:18, 3:22, 4:26, 5:30}
+        },
+        SPRINT20: {
+          "13-15": {2:4.20,3:4.00,4:3.80,5:3.60},
+          "16-19": {2:4.05,3:3.85,4:3.65,5:3.45},
+          "20-29": {2:4.00,3:3.80,4:3.60,5:3.40},
+          "30-39": {2:4.10,3:3.90,4:3.70,5:3.50},
+          "40-49": {2:4.30,3:4.10,4:3.90,5:3.70},
+          "50+":   {2:4.55,3:4.30,4:4.05,5:3.85},
+          "U12":   {2:4.80,3:4.55,4:4.30,5:4.05}
+        },
+        VO2MAX: {
+          "13-15": {2:40, 3:46, 4:52, 5:58},
+          "16-19": {2:42, 3:48, 4:54, 5:60},
+          "20-29": {2:41, 3:47, 4:53, 5:59},
+          "30-39": {2:39, 3:45, 4:51, 5:57},
+          "40-49": {2:36, 3:42, 4:48, 5:54},
+          "50+":   {2:33, 3:38, 4:44, 5:50},
+          "U12":   {2:35, 3:40, 4:45, 5:50}
+        },
+        SITREACH: {
+          "13-15": {2:18, 3:24, 4:30, 5:36},
+          "16-19": {2:17, 3:23, 4:29, 5:35},
+          "20-29": {2:16, 3:22, 4:28, 5:34},
+          "30-39": {2:15, 3:21, 4:27, 5:33},
+          "40-49": {2:14, 3:20, 4:26, 5:32},
+          "50+":   {2:13, 3:19, 4:25, 5:31},
+          "U12":   {2:16, 3:20, 4:24, 5:28}
+        }
+      },
+      F: {
+        REL_1RM_SQUAT: {
+          "13-15": {2:0.7, 3:0.9, 4:1.1, 5:1.3},
+          "16-19": {2:0.8, 3:1.0, 4:1.2, 5:1.4},
+          "20-29": {2:0.8, 3:1.05,4:1.25,5:1.45},
+          "30-39": {2:0.75,3:1.0, 4:1.2, 5:1.4},
+          "40-49": {2:0.7, 3:0.9, 4:1.1, 5:1.3},
+          "50+":   {2:0.6, 3:0.8, 4:1.0, 5:1.2},
+          "U12":   {2:0.0, 3:0.0, 4:0.0, 5:0.0}
+        },
+        REL_1RM_BENCH: {
+          "13-15": {2:0.35,3:0.45,4:0.55,5:0.65},
+          "16-19": {2:0.40,3:0.52,4:0.64,5:0.76},
+          "20-29": {2:0.42,3:0.55,4:0.70,5:0.85},
+          "30-39": {2:0.40,3:0.52,4:0.66,5:0.80},
+          "40-49": {2:0.37,3:0.48,4:0.60,5:0.72},
+          "50+":   {2:0.32,3:0.42,4:0.54,5:0.66},
+          "U12":   {2:0.0, 3:0.0, 4:0.0, 5:0.0}
+        },
+        REL_1RM_DEADLIFT: {
+          "13-15": {2:0.85,3:1.05,4:1.25,5:1.45},
+          "16-19": {2:0.95,3:1.15,4:1.35,5:1.55},
+          "20-29": {2:1.0, 3:1.2, 4:1.45,5:1.7},
+          "30-39": {2:0.95,3:1.15,4:1.35,5:1.55},
+          "40-49": {2:0.85,3:1.05,4:1.25,5:1.45},
+          "50+":   {2:0.75,3:0.95,4:1.15,5:1.35},
+          "U12":   {2:0.0, 3:0.0, 4:0.0, 5:0.0}
+        },
+        CMJ: {
+          "13-15": {2:24, 3:30, 4:36, 5:42},
+          "16-19": {2:26, 3:32, 4:38, 5:44},
+          "20-29": {2:25, 3:31, 4:37, 5:43},
+          "30-39": {2:23, 3:29, 4:35, 5:41},
+          "40-49": {2:20, 3:26, 4:32, 5:38},
+          "50+":   {2:18, 3:23, 4:28, 5:34},
+          "U12":   {2:16, 3:20, 4:24, 5:28}
+        },
+        SPRINT20: {
+          "13-15": {2:4.60,3:4.35,4:4.10,5:3.85},
+          "16-19": {2:4.50,3:4.25,4:4.00,5:3.75},
+          "20-29": {2:4.50,3:4.25,4:4.00,5:3.75},
+          "30-39": {2:4.60,3:4.35,4:4.10,5:3.85},
+          "40-49": {2:4.80,3:4.55,4:4.30,5:4.05},
+          "50+":   {2:5.05,3:4.80,4:4.55,5:4.25},
+          "U12":   {2:5.20,3:4.95,4:4.70,5:4.40}
+        },
+        VO2MAX: {
+          "13-15": {2:34, 3:40, 4:46, 5:52},
+          "16-19": {2:36, 3:42, 4:48, 5:54},
+          "20-29": {2:35, 3:41, 4:47, 5:53},
+          "30-39": {2:33, 3:39, 4:45, 5:51},
+          "40-49": {2:30, 3:36, 4:42, 5:48},
+          "50+":   {2:28, 3:33, 4:39, 5:45},
+          "U12":   {2:30, 3:35, 4:40, 5:45}
+        },
+        SITREACH: {
+          "13-15": {2:22, 3:28, 4:34, 5:40},
+          "16-19": {2:21, 3:27, 4:33, 5:39},
+          "20-29": {2:20, 3:26, 4:32, 5:38},
+          "30-39": {2:19, 3:25, 4:31, 5:37},
+          "40-49": {2:18, 3:24, 4:30, 5:36},
+          "50+":   {2:17, 3:23, 4:29, 5:35},
+          "U12":   {2:18, 3:22, 4:26, 5:30}
+        }
+      }
+    };
+
+    function getNormKey(category, itemKey, variant){
+      if(category === "Power" && itemKey === "CMJ") return "CMJ";
+      if(category === "Speed" && itemKey === "Sprint20") return "SPRINT20";
+      if(category === "Endurance" && itemKey === "Cooper") return "VO2MAX";
+      if(category === "Mobility/Flexibility" && itemKey === "SitReach") return "SITREACH";
+
+      if(category === "Strength" && itemKey === "1RM"){
+        const v = (variant || "").toLowerCase();
+        if(v.includes("bench")) return "REL_1RM_BENCH";
+        if(v.includes("dead")) return "REL_1RM_DEADLIFT";
+        return "REL_1RM_SQUAT";
+      }
+      return null;
+    }
+
+    function computeAutoScore({category, itemKey, variant, value, age, sex, bw, e1rm}){
+      const s = (sex === "F") ? "F" : "M";
+      const band = getAgeBand(age);
+      const normKey = getNormKey(category, itemKey, variant);
+      if(!normKey) return null;
+
+      const sexNorms = NORMS[s] || {};
+      const byAge = sexNorms[normKey] || {};
+      const th = byAge[band] || null;
+      if(!th || !th[2]) return null;
+
+      if(normKey.startsWith("REL_1RM")){
+        const BW = parseFloat(bw);
+        if(!isFinite(BW) || BW <= 0) return null;
+
+        const oneRM = isFinite(parseFloat(e1rm)) ? parseFloat(e1rm) : parseFloat(value);
+        if(!isFinite(oneRM) || oneRM <= 0) return null;
+
+        const rel = oneRM / BW;
+        return scoreByThresholds(rel, th, "higherBetter");
+      }
+
+      if(normKey === "SPRINT20"){
+        return scoreByThresholds(value, th, "lowerBetter");
+      }
+
+      return scoreByThresholds(value, th, "higherBetter");
+    }
+
+    function initTestsUI(){
+      const catSel = document.getElementById("testCategory");
+      const itemSel = document.getElementById("testItem");
+
+      catSel.innerHTML = Object.keys(TEST_CATALOG)
+        .map(k => `<option value="${k}">${k}</option>`)
+        .join("");
+
+      function refreshItems(){
+        const cat = catSel.value;
+        const items = TEST_CATALOG[cat] || [];
+        itemSel.innerHTML = items.map((it) => `<option value="${it.key}">${it.label}</option>`).join("");
+        onTestItemChange();
+      }
+
+      function onTestItemChange(){
+        const cat = catSel.value;
+        const items = TEST_CATALOG[cat] || [];
+        const it = items.find(x => x.key === itemSel.value);
+
+        const variantWrap = document.getElementById("testVariantWrap");
+        const methodWrap  = document.getElementById("testMethodWrap");
+        const repsWrap    = document.getElementById("testRepsWrap");
+        const unitSel     = document.getElementById("testUnit");
+
+        variantWrap.style.display = (it && it.needsVariant) ? "block" : "none";
+        methodWrap.style.display  = (it && it.needsMethod)  ? "block" : "none";
+
+        const method = document.getElementById("testMethod").value;
+        repsWrap.style.display = (it && it.key === "1RM" && method === "estimated") ? "block" : "none";
+
+        if(it && it.unit) unitSel.value = it.unit;
+
+        computeTestPreview();
+      }
+
+      catSel.addEventListener("change", refreshItems);
+      itemSel.addEventListener("change", onTestItemChange);
+      document.getElementById("testMethod").addEventListener("change", onTestItemChange);
+
+      const radarSel = document.getElementById("radarAthleteFilter");
+      if(radarSel){
+        radarSel.addEventListener("change", ()=>updateTestRadar());
+      }
+
+      ["testValue","testReps","testScore","testBW","testAge","testSex","testVariant","testUnit","testDate","testAthlete","testNotes"]
+        .forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.addEventListener("input", ()=>computeTestPreview());
+          if(el && el.tagName === "SELECT") el.addEventListener("change", ()=>computeTestPreview());
+        });
+
+      refreshItems();
+      renderTestsTable();
+      updateTestRadar();
+    }
+
+    function computeTestPreview(){
+      const cat = document.getElementById("testCategory").value;
+      const item = document.getElementById("testItem").value;
+
+      const items = TEST_CATALOG[cat] || [];
+      const it = items.find(x => x.key === item);
+
+      const box = document.getElementById("testComputedBox");
+      if(!it){ box.style.display="none"; return; }
+
+      if(it.key === "1RM"){
+        const method = document.getElementById("testMethod").value;
+        const val = parseFloat(document.getElementById("testValue").value) || 0;
+        const reps = parseFloat(document.getElementById("testReps").value) || 0;
+        const bw = parseFloat(document.getElementById("testBW").value) || 0;
+
+        if(method === "estimated" && val > 0 && reps > 0){
+          const e1rm = val * (1 + (reps/30));
+          const rel = (bw > 0) ? (e1rm / bw) : null;
+
+          box.style.display = "block";
+          box.innerHTML = `
+            <div style="font-weight:900; color:var(--primary); margin-bottom:6px;">Estimasi 1RM (Epley)</div>
+            <div>e1RM: <b>${e1rm.toFixed(1)} kg</b></div>
+            <div>Relative Strength: <b>${rel ? rel.toFixed(2) + " xBW" : "-"}</b></div>
+            <div style="font-size:.7rem; color:#64748b; margin-top:6px;">Untuk norma 1RM, sistem memakai (1RM/BW). Isi BB agar skor otomatis aktif.</div>
+          `;
+          return;
+        }
+      }
+      box.style.display = "none";
+    }
+
+    function addTestRecord(){
+      const athlete = (document.getElementById("testAthlete").value || "").trim();
+      const date = document.getElementById("testDate").value;
+      if(!athlete){ alert("Nama atlet wajib diisi."); return; }
+      if(!date){ alert("Tanggal tes wajib diisi."); return; }
+
+      const cat = document.getElementById("testCategory").value;
+      const item = document.getElementById("testItem").value;
+      const items = TEST_CATALOG[cat] || [];
+      const it = items.find(x => x.key === item);
+
+      const val = parseFloat(document.getElementById("testValue").value);
+      if(!isFinite(val)){ alert("Nilai utama wajib angka."); return; }
+
+      const unit = document.getElementById("testUnit").value;
+      const manualScore = parseInt(document.getElementById("testScore").value) || 3;
+
+      const rec = {
+        id: "T" + Date.now(),
+        athlete,
+        date,
+        age: parseInt(document.getElementById("testAge").value) || null,
+        sex: document.getElementById("testSex").value || "M",
+        bw: parseFloat(document.getElementById("testBW").value) || null,
+
+        category: cat,
+        itemKey: item,
+        itemLabel: it ? it.label : item,
+
+        variant: (it && it.needsVariant) ? (document.getElementById("testVariant").value || null) : null,
+        method: (it && it.needsMethod) ? (document.getElementById("testMethod").value || null) : null,
+        reps: (it && item === "1RM" && document.getElementById("testMethod").value === "estimated")
+          ? (parseInt(document.getElementById("testReps").value) || null)
+          : null,
+
+        value: val,
+        unit,
+        score: manualScore,
+        score_source: "manual",
+        notes: (document.getElementById("testNotes").value || "").trim()
+      };
+
+      if(rec.itemKey === "1RM" && rec.method === "estimated" && rec.reps && rec.value){
+        const e1rm = rec.value * (1 + (rec.reps/30));
+        rec.e1rm = parseFloat(e1rm.toFixed(2));
+        if(rec.bw) rec.rel = parseFloat((e1rm / rec.bw).toFixed(3));
+      }
+
+      const auto = computeAutoScore({
+        category: rec.category,
+        itemKey: rec.itemKey,
+        variant: rec.variant,
+        value: rec.value,
+        age: rec.age,
+        sex: rec.sex,
+        bw: rec.bw,
+        e1rm: rec.e1rm
+      });
+
+      if(auto !== null){
+        rec.score = auto;
+        rec.score_source = "norm";
+      }
+
+      testsData.unshift(rec);
+      renderTestsTable();
+      updateTestRadar();
+      clearTestForm(false);
+
+      alert("Hasil tes tersimpan (akan ikut tersimpan saat klik 💾).");
+    }
+
+    function deleteTest(id){
+      testsData = (testsData || []).filter(x => x.id !== id);
+      renderTestsTable();
+      updateTestRadar();
+    }
+
+    function renderTestsTable(){
+      const body = document.getElementById("testsBody");
+      if(!body) return;
+
+      body.innerHTML = "";
+      (testsData || []).forEach(r=>{
+        const valText = (r.itemKey === "1RM" && r.e1rm) ? r.e1rm : r.value;
+        const unitText = (r.itemKey === "1RM") ? "kg" : (r.unit || "");
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.date || "-"}</td>
+          <td style="text-align:left; font-weight:800">${r.athlete || "-"}</td>
+          <td>${r.category || "-"}</td>
+          <td style="text-align:left">${r.itemLabel || r.itemKey || "-"}</td>
+          <td>${r.variant || "-"}</td>
+          <td><b>${(isFinite(valText) ? valText : "-")}</b> ${unitText}</td>
+          <td>
+            <b>${r.score || "-"}</b><br>
+            <small style="color:#64748b; font-weight:800;">${r.score_source === "norm" ? "NORMA" : "MANUAL"}</small>
+          </td>
+          <td style="text-align:left">${r.notes || ""}</td>
+          <td>
+            <button type="button" onclick="deleteTest('${r.id}')"
+              style="color:#ef4444; border:none; background:none; cursor:pointer; font-weight:900; font-size:16px;">×</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function clearTestForm(clearAll=true){
+      if(clearAll){
+        document.getElementById("testAthlete").value = "";
+        document.getElementById("testAge").value = "";
+        document.getElementById("testBW").value = "";
+        document.getElementById("testNotes").value = "";
+      }
+      document.getElementById("testValue").value = "";
+      document.getElementById("testReps").value = "";
+      document.getElementById("testScore").value = "3";
+      computeTestPreview();
+    }
+
+    function refreshRadarAthleteFilter(){
+      const sel = document.getElementById("radarAthleteFilter");
+      if(!sel) return;
+
+      const athletes = Array.from(new Set((testsData || []).map(x => (x.athlete || "").trim()).filter(Boolean))).sort();
+      const current = sel.value;
+
+      sel.innerHTML = `<option value="__ALL__">Semua Atlet (gabungan)</option>` +
+        athletes.map(a => `<option value="${a}">${a}</option>`).join("");
+
+      if(current && athletes.includes(current)) sel.value = current;
+      else sel.value = "__ALL__";
+    }
+
+    function updateTestRadar(){
+      const canvas = document.getElementById("testRadarChart");
+      if(!canvas) return;
+
+      refreshRadarAthleteFilter();
+      const filterSel = document.getElementById("radarAthleteFilter");
+      const athleteFilter = filterSel ? filterSel.value : "__ALL__";
+
+      const data = (testsData || []).filter(r => {
+        if(athleteFilter === "__ALL__") return true;
+        return (r.athlete || "").trim() === athleteFilter;
+      });
+
+      const domains = ["Strength","Power","Speed","Agility","Endurance","Mobility","Balance","BodyComp"];
+      const latest = {};
+
+      const mapCatToDomain = (cat)=>{
+        if(cat === "Strength") return "Strength";
+        if(cat === "Power") return "Power";
+        if(cat === "Speed") return "Speed";
+        if(cat === "Agility/COD") return "Agility";
+        if(cat === "Endurance") return "Endurance";
+        if(cat === "Mobility/Flexibility") return "Mobility";
+        if(cat === "Balance/Stability") return "Balance";
+        if(cat === "Body Composition") return "BodyComp";
+        return null;
+      };
+
+      data.forEach(r=>{
+        const dom = mapCatToDomain(r.category);
+        if(!dom) return;
+        if(!latest[dom]) latest[dom] = r; // data sudah newest-first
+      });
+
+      const values = domains.map(d=>{
+        const r = latest[d];
+        return r ? (parseInt(r.score) || 0) : 0;
+      });
+
+      const ctx = canvas.getContext("2d");
+      if(testRadar) testRadar.destroy();
+
+      testRadar = new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: domains,
+          datasets: [{
+            label: athleteFilter === "__ALL__" ? "Skor 1–5 (Terbaru - Gabungan)" : `Skor 1–5 (Terbaru - ${athleteFilter})`,
+            data: values,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: { min: 0, max: 5, ticks: { stepSize: 1 } }
+          }
+        }
+      });
     }
 
     // =========================
@@ -1316,6 +2031,10 @@
         meso: mesocycles || [],
         plan: planData || [],
         sessions: weeklySessions || {},
+
+        // ✅ TES & PENGUKURAN ikut tersimpan
+        tests: testsData || [],
+
         meta: { created_from: "web", timestamp: new Date().toISOString() }
       };
 
@@ -1383,6 +2102,8 @@
       mesocycles = p.meso || [];
       planData = p.plan || [];
       weeklySessions = p.sessions || {};
+      testsData = p.tests || [];
+
       totalWkLocked = planData.length || 0;
 
       renderMesoEditor();
@@ -1390,6 +2111,12 @@
       populateMonthSelector();
       updateVisuals();
       renderMonthlyCalendar();
+
+      // Update tes UI jika sudah pernah dibuka
+      try{
+        renderTestsTable();
+        updateTestRadar();
+      } catch(e){}
 
       alert("Data berhasil dimuat dari database");
       showSection('step2');
@@ -1416,6 +2143,7 @@
       document.getElementById("btn2").addEventListener("click", ()=>showSection("step2"));
       document.getElementById("btn3").addEventListener("click", ()=>showSection("step3"));
       document.getElementById("btn4").addEventListener("click", ()=>initMonitoring());
+      document.getElementById("btn5").addEventListener("click", ()=>showSection("step5"));
 
       // Logout
       document.getElementById("btnLogout").addEventListener("click", ()=>doLogout());
@@ -1438,6 +2166,10 @@
       document.getElementById("btnAddExercise").addEventListener("click", ()=>addExerciseRow());
       document.getElementById("btnSaveSession").addEventListener("click", ()=>saveSession());
       document.getElementById("btnCloseModal").addEventListener("click", ()=>closeModal());
+
+      // Tes buttons
+      document.getElementById("btnAddTest").addEventListener("click", ()=>addTestRecord());
+      document.getElementById("btnClearTests").addEventListener("click", ()=>clearTestForm(true));
     }
 
     function importData(e) {
@@ -1458,9 +2190,15 @@
 
         mesocycles = d.meso || [];
         weeklySessions = d.sessions || {};
+        testsData = d.tests || [];
         totalWkLocked = (d.plan && d.plan.length) ? d.plan.length : 0;
 
         refreshUI();
+        try{
+          renderTestsTable();
+          updateTestRadar();
+        } catch(e){}
+
         showSection('step2');
       };
       r.readAsText(file);
@@ -1487,6 +2225,8 @@
     window.saveAnnualPlan = saveAnnualPlan;
     window.loadAnnualPlans = loadAnnualPlans;
     window.printPDF = printPDF;
+
+    window.deleteTest = deleteTest;
 
     // Boot
     document.addEventListener("DOMContentLoaded", async () => {
